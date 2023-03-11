@@ -5,7 +5,7 @@ import random
 import logging
 import datetime
 import pytz
-from id import id
+import id
 
 logging.basicConfig(level=logging.INFO)
 timezone = pytz.timezone('Asia/Singapore')
@@ -14,7 +14,7 @@ intents = discord.Intents.all()
 intents.message_content = True
 intents.members = True
 
-bot = commands.Bot(command_prefix='!', intents=intents)
+bot = commands.Bot(command_prefix='!!', intents=intents)
 
 @bot.event
 async def on_ready():
@@ -63,13 +63,13 @@ class RockPaperScissor(discord.ui.View):
         player = interaction.user
         botChoices = ['rock', 'paper', 'scissors', 'lizard', 'spock']
 
-        channel = bot.get_channel(id['logChannel'])
+        channel = bot.get_channel(id.idTGR['logChannel'])
 
         roles = {
-            'roleWin': interaction.guild.get_role(id['RPSWinner']),
-            'roleLose': interaction.guild.get_role(id['RPSLoser']),
-            'roleRaffler': interaction.guild.get_role(id['CharityRaffle']), 
-            'roleMember': interaction.guild.get_role(id['Member'])
+            'roleWin': interaction.guild.get_role(id.idTGR['RPSWinner']),
+            'roleLose': interaction.guild.get_role(id.idTGR['RPSLoser']),
+            'roleRaffler': interaction.guild.get_role(id.idTGR['CharityRaffle']), 
+            'roleMember': interaction.guild.get_role(id.idTGR['Member'])
         }
 
         gameRules = {
@@ -129,13 +129,15 @@ class RockPaperScissor(discord.ui.View):
                 await interaction.followup.send(f"{playerRPSDecision.title()} {action} {botRPSDecision}! " + gameMessage['win'], ephemeral=True)
                 await channel.send(f"<@{interaction.user.id}> \n Played: {playerRPSDecision} \n Bot: {botRPSDecision} \n Result: Win \n Timestamp: {datetime.datetime.now(timezone)}")
                 await player.remove_roles(roles['roleLose'])
-                await player.add_roles(roles['roleWin'])  
+                await player.add_roles(roles['roleWin'])
+                #await interaction.followup.send(f"!give-xp <@{interaction.user.id}> 20")
             else:
                 action = gameRules[botRPSDecision][playerRPSDecision]
                 await interaction.followup.send(f"{botRPSDecision.title()} {action} {playerRPSDecision}! " + gameMessage['lose'], ephemeral=True)
                 await channel.send(f"<@{interaction.user.id}> \n Played: {playerRPSDecision} \n Bot: {botRPSDecision} \n Result: Lose \n Timestamp: {datetime.datetime.now(timezone)}")
                 await player.remove_roles(roles['roleWin'])
-                await player.add_roles(roles['roleLose'])  
+                #await player.add_roles(roles['roleLose'])
+                #await interaction.followup.send(f"!remove-xp <@{interaction.user.id}> 10")
 
 @bot.command(pass_context=True)
 @commands.has_permissions(administrator=True)
@@ -150,7 +152,7 @@ async def clear(ctx, amount = 5):
 @bot.command(pass_context=True)
 @commands.has_permissions(administrator=True)
 async def RPSWinnerReset(ctx):
-    roleWin = ctx.guild.get_role(id['RPSWinner'])
+    roleWin = ctx.guild.get_role(id.idTGR['RPSWinner'])
     if roleWin.members:
         for member in roleWin.members:
             await ctx.send(f"Removing <@{member.id}> from RPSWinner role...\n")
@@ -161,7 +163,7 @@ async def RPSWinnerReset(ctx):
 @bot.command(pass_context=True)
 @commands.has_permissions(administrator=True)
 async def RPSResetAll(ctx):
-    roleWin = ctx.guild.get_role(id['RPSWinner'])
+    roleWin = ctx.guild.get_role(id.idTGR['RPSWinner'])
     if roleWin.members:
         for member in roleWin.members:
             await ctx.send(f"Removing <@{member.id}> from RPSWinner role...\n")
@@ -169,7 +171,7 @@ async def RPSResetAll(ctx):
     else:
         await ctx.send(f"No one else has the winner role")
 
-    roleLose = ctx.guild.get_role(id['RPSLoser'])
+    roleLose = ctx.guild.get_role(id.idTGR['RPSLoser'])
     if roleLose.members:
         for member in roleLose.members:
             await ctx.send(f"Removing <@{member.id}> from RPSLoser role...\n")
@@ -177,4 +179,4 @@ async def RPSResetAll(ctx):
     else:
         await ctx.send(f"No one else has the loser role")
 
-bot.run(id['botToken'])
+bot.run(id.idTGR['botToken'])
