@@ -3,16 +3,17 @@ from discord.ext import tasks, commands
 from discord.utils import get
 import random
 import logging
+import datetime
+import pytz
 
 logging.basicConfig(level=logging.INFO)
+timezone = pytz.timezone('Asia/Singapore')
 
 token = open("token", "r").read() 
 
 intents = discord.Intents.all()
 intents.message_content = True
 intents.members = True
-
-botChoices = ['✊ Rock', '🖐️ Paper', '✌️ Scissors', '🤌 Lizard', '🖖 Spock']
 
 bot = commands.Bot(command_prefix='!', intents=intents)
 
@@ -33,27 +34,27 @@ class RockPaperScissor(discord.ui.View):
             discord.SelectOption(
                 label="Rock",
                 emoji="✊",
-                value="✊ Rock",
+                value="rock",
             ),
             discord.SelectOption(
                 label="Paper",
                 emoji="🖐️",
-                value="🖐️ Paper",
+                value="paper",
             ),
             discord.SelectOption(
                 label="Scissors",
                 emoji="✌️",
-                value="✌️ Scissors",
+                value="scissors",
             ),
             discord.SelectOption(
                 label="Lizard",
                 emoji="🤌",
-                value="🤌 Lizard",
+                value="lizard",
             ),
             discord.SelectOption(
                 label="Spock",
                 emoji="🖖",
-                value="🖖 Spock",
+                value="spock",
             )
         ]
     )
@@ -61,139 +62,81 @@ class RockPaperScissor(discord.ui.View):
     async def select_callback(self, select, interaction):
         playerRPSDecision = select.values[0]
         player = interaction.user
-        roleWin = interaction.guild.get_role(1083054156123738232)
-        roleLose = interaction.guild.get_role(1083054190512832552)
-        roleRaffler = interaction.guild.get_role(1083068650568814664)
-        roleMember = interaction.guild.get_role(1083068673704599602)
+        botChoices = ['rock', 'paper', 'scissors', 'lizard', 'spock']
+
+        channel = bot.get_channel(1083002469593911327)
+
+        roles = {
+            'roleWin': interaction.guild.get_role(1083054156123738232),
+            'roleLose': interaction.guild.get_role(1083054190512832552),
+            'roleRaffler': interaction.guild.get_role(1083068650568814664), 
+            'roleMember': interaction.guild.get_role(1083068673704599602)
+        }
+
+        gameRules = {
+            'rock': {
+                'scissors': 'smashes',
+                'lizard': 'crushes'
+            },
+            'paper': {
+                'rock': 'covers',
+                'spock': 'disproves'
+            },
+            'scissors': {
+                'paper': 'cuts',
+                'lizard': 'decapitates'
+            },
+            'lizard': {
+                'paper': 'eats',
+                'spock': 'poisons'
+            },
+            'spock': {
+                'rock': 'vaporizes',
+                'scissors': 'smashes'
+            }
+        }
+
+        gameMessage = {
+            'win': 'You win!',
+            'lose': 'You lose :(',
+            'tie': "It's a tie!"
+        }
+
+        selectionEmoji = {
+            'rock': '✊',
+            'paper': '🖐️',
+            'scissor': '✌️',
+            'lizard': '🤌',
+            'spock': '🖖'
+        }
+
         IHopeThisIsRNGEnough = random.SystemRandom()
         botRPSDecision = botChoices[IHopeThisIsRNGEnough.randint(0, 4)]
 
-        if roleLose in player.roles:
+        if roles["roleLose"] in player.roles:
             await interaction.response.send_message(f"Bruh you lost why you tryna cheat?", ephemeral=True)
 
-        elif roleRaffler in player.roles:
+        elif roles["roleRaffler"] in player.roles:
             await interaction.response.send_message(f"I'm sorry but you're not eligible to join this.", ephemeral=True)
 
-        elif roleWin or roleMember in player.roles:
-            await interaction.response.send_message(f"You: {playerRPSDecision}!\nBot: {botRPSDecision}!", ephemeral=True)
+        elif roles["roleWin"] or roles["roleMember"] in player.roles:
+            await interaction.response.send_message(f"You: {selectionEmoji[playerRPSDecision]} {playerRPSDecision}!\nBot: {selectionEmoji[botRPSDecision]} {botRPSDecision}!", ephemeral=True)
 
-            match playerRPSDecision:
-                case '✊ Rock':
-                    match botRPSDecision:
-                        case '✊ Rock':
-                            await interaction.followup.send(f"It's a tie!", ephemeral=True)
-                        case '🖐️ Paper':
-                            await interaction.followup.send(f"Paper covers rock! You lose.", ephemeral=True)
-                            await player.remove_roles(roleWin)
-                            await player.add_roles(roleLose)
-                        case '✌️ Scissors':
-                            await interaction.followup.send(f"Rock smashes scissors! You win!", ephemeral=True)
-                            await player.remove_roles(roleLose)
-                            await player.add_roles(roleWin)  
-                        case '🤌 Lizard':
-                            await interaction.followup.send(f"Rock crushes lizard! You win!", ephemeral=True)
-                            await player.remove_roles(roleLose)
-                            await player.add_roles(roleWin) 
-                        case '🖖 Spock':
-                            await interaction.followup.send(f"Spock vaporizes rocks! You lose!", ephemeral=True)
-                            await player.remove_roles(roleWin)
-                            await player.add_roles(roleLose)
-                        case other:
-                            pass
-                case '🖐️ Paper':
-                    match botRPSDecision:
-                        case '✊ Rock':
-                            await interaction.followup.send(f"Paper covers rock! You win!", ephemeral=True)
-                            await player.remove_roles(roleLose)
-                            await player.add_roles(roleWin)
-                        case '🖐️ Paper':
-                            await interaction.followup.send(f"It's a tie!", ephemeral=True)
-                        case '✌️ Scissors':
-                            await interaction.followup.send(f"Scissors cuts paper! You lose.", ephemeral=True)
-                            await player.remove_roles(roleWin)
-                            await player.add_roles(roleLose)
-                        case '🤌 Lizard':
-                            await interaction.followup.send(f"Lizard eats paper! You lose!", ephemeral=True)
-                            await player.remove_roles(roleWin)
-                            await player.add_roles(roleLose)
-                        case '🖖 Spock':
-                            await interaction.followup.send(f"Paper disproves spock! You win!", ephemeral=True)
-                            await player.remove_roles(roleLose)
-                            await player.add_roles(roleWin)
-                        case other:
-                            pass
-                case '✌️ Scissors':
-                    match botRPSDecision:
-                        case '✊ Rock':
-                            await interaction.followup.send(f"Rock smashes scissors! You lose.", ephemeral=True)
-                            await player.remove_roles(roleWin)
-                            await player.add_roles(roleLose)
-                        case '🖐️ Paper':
-                            await interaction.followup.send(f"Scissors cuts paper! You win!", ephemeral=True)
-                            await player.remove_roles(roleLose)
-                            await player.add_roles(roleWin)
-                        case '✌️ Scissors':
-                            await interaction.followup.send(f"It's a tie!", ephemeral=True)
-                        case '🤌 Lizard':
-                            await interaction.followup.send(f"Scissors decapitates lizard! You win!", ephemeral=True)
-                            await player.remove_roles(roleLose)
-                            await player.add_roles(roleWin)
-                        case '🖖 Spock':
-                            await interaction.followup.send(f"Spock smashes scissors! You lose!", ephemeral=True)
-                            await player.remove_roles(roleWin)
-                            await player.add_roles(roleLose)
-                        case other:
-                            pass
-                case '🤌 Lizard':
-                    match botRPSDecision:
-                        case '✊ Rock':
-                            await interaction.followup.send(f"Rock crushes lizard! You lose!", ephemeral=True)
-                            await player.remove_roles(roleWin)
-                            await player.add_roles(roleLose)
-                        case '🖐️ Paper':
-                            await interaction.followup.send(f"Lizard eats paper! You win!", ephemeral=True)
-                            await player.remove_roles(roleLose)
-                            await player.add_roles(roleWin)
-                        case '✌️ Scissors':
-                            await interaction.followup.send(f"Scissors decapitates lizard! You lose!", ephemeral=True)
-                            await player.remove_roles(roleWin)
-                            await player.add_roles(roleLose)
-                        case '🤌 Lizard':
-                            await interaction.followup.send(f"It's a tie!", ephemeral=True)
-                        case '🖖 Spock':
-                            await interaction.followup.send(f"Lizard poisons spock! You win!", ephemeral=True)
-                            await player.remove_roles(roleLose)
-                            await player.add_roles(roleWin)
-                        case other:
-                            pass
-                case '🖖 Spock':
-                    match botRPSDecision:
-                        case '✊ Rock':
-                            await interaction.followup.send(f"Spock vaporizes rocks! You win!", ephemeral=True)
-                            await player.remove_roles(roleLose)
-                            await player.add_roles(roleWin)
-                        case '🖐️ Paper':
-                            await interaction.followup.send(f"Paper disproves spock! You lose!", ephemeral=True)
-                            await player.remove_roles(roleWin)
-                            await player.add_roles(roleLose)
-                        case '✌️ Scissors':
-                            await interaction.followup.send(f"Spock smashes scissors! You win!", ephemeral=True)
-                            await player.remove_roles(roleLose)
-                            await player.add_roles(roleWin)
-                        case '🤌 Lizard':
-                            await interaction.followup.send(f"Lizard poisons spock! You lose!", ephemeral=True)
-                            await player.remove_roles(roleWin)
-                            await player.add_roles(roleLose)
-                        case '🖖 Spock':
-                            await interaction.followup.send(f"It's a tie!", ephemeral=True)
-                        case other:
-                            pass
-                case other:
-                    pass
-#            await player.add_roles(roleLose)
-#            channel = bot.get_channel(1083002469593911327)
-#            if channel:
-#                await channel.send(f"<@{interaction.user.id}>:{playerRPSDecision}")
+            if playerRPSDecision == botRPSDecision:
+                await interaction.followup.send(f"" + gameMessage['tie'], ephemeral=True)
+                await channel.send(f"<@{interaction.user.id}> \n Played: {playerRPSDecision} \n Bot: {botRPSDecision} \n Result: Tie \n Timestamp: {datetime.datetime.now(timezone)}")
+            elif botRPSDecision in gameRules[playerRPSDecision]:
+                action = gameRules[playerRPSDecision][botRPSDecision]
+                await interaction.followup.send(f"{playerRPSDecision.title()} {action} {botRPSDecision}! " + gameMessage['win'], ephemeral=True)
+                await channel.send(f"<@{interaction.user.id}> \n Played: {playerRPSDecision} \n Bot: {botRPSDecision} \n Result: Win \n Timestamp: {datetime.datetime.now(timezone)}")
+                await player.remove_roles(roles['roleLose'])
+                await player.add_roles(roles['roleWin'])  
+            else:
+                action = gameRules[botRPSDecision][playerRPSDecision]
+                await interaction.followup.send(f"{botRPSDecision.title()} {action} {playerRPSDecision}! " + gameMessage['lose'], ephemeral=True)
+                await channel.send(f"<@{interaction.user.id}> \n Played: {playerRPSDecision} \n Bot: {botRPSDecision} \n Result: Lose \n Timestamp: {datetime.datetime.now(timezone)}")
+                await player.remove_roles(roles['roleWin'])
+                await player.add_roles(roles['roleLose'])  
 
 @bot.command(pass_context=True)
 @commands.has_permissions(administrator=True)
