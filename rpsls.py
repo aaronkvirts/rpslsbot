@@ -105,7 +105,7 @@ class RockPaperScissor(discord.ui.View):
         selectionEmoji = {
             'rock': '✊',
             'paper': '🖐️',
-            'scissor': '✌️',
+            'scissors': '✌️',
             'lizard': '🤌',
             'spock': '🖖'
         }
