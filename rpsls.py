@@ -176,6 +176,6 @@ async def RPSResetAll(ctx):
             await ctx.send(f"Removing <@{member.id}> from RPSLoser role...\n")
             await member.remove_roles(roleLose)
     else:
-        await ctx.send(f"No one else has the winner role")
+        await ctx.send(f"No one else has the loser role")
 
 bot.run(token)
