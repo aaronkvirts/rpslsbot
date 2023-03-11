@@ -216,4 +216,23 @@ async def RPSWinnerReset(ctx):
     else:
         await ctx.send(f"No one else has the winner role")
 
+@bot.command(pass_context=True)
+@commands.has_permissions(administrator=True)
+async def RPSResetAll(ctx):
+    roleWin = ctx.guild.get_role(1083054156123738232)
+    if roleWin.members:
+        for member in roleWin.members:
+            await ctx.send(f"Removing <@{member.id}> from RPSWinner role...\n")
+            await member.remove_roles(roleWin)
+    else:
+        await ctx.send(f"No one else has the winner role")
+
+    roleLose = ctx.guild.get_role(1083054190512832552)
+    if roleLose.members:
+        for member in roleLose.members:
+            await ctx.send(f"Removing <@{member.id}> from RPSLoser role...\n")
+            await member.remove_roles(roleLose)
+    else:
+        await ctx.send(f"No one else has the winner role")
+
 bot.run(token)
