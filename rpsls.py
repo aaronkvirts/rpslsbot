@@ -130,14 +130,12 @@ class RockPaperScissor(discord.ui.View):
                 await channel.send(f"<@{interaction.user.id}> \n Played: {playerRPSDecision} \n Bot: {botRPSDecision} \n Result: Win \n Timestamp: {datetime.datetime.now(timezone)}")
                 await player.remove_roles(roles['roleLose'])
                 await player.add_roles(roles['roleWin'])
-                #await interaction.followup.send(f"!give-xp <@{interaction.user.id}> 20")
             else:
                 action = gameRules[botRPSDecision][playerRPSDecision]
                 await interaction.followup.send(f"{botRPSDecision.title()} {action} {playerRPSDecision}! " + gameMessage['lose'], ephemeral=True)
                 await channel.send(f"<@{interaction.user.id}> \n Played: {playerRPSDecision} \n Bot: {botRPSDecision} \n Result: Lose \n Timestamp: {datetime.datetime.now(timezone)}")
                 await player.remove_roles(roles['roleWin'])
-                #await player.add_roles(roles['roleLose'])
-                #await interaction.followup.send(f"!remove-xp <@{interaction.user.id}> 10")
+                await player.add_roles(roles['roleLose'])
 
 @bot.command(pass_context=True)
 @commands.has_permissions(administrator=True)
