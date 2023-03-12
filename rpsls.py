@@ -6,9 +6,44 @@ import logging
 import datetime
 import pytz
 import os
+import asyncio
+import motor.motor_asyncio
 
 logging.basicConfig(level=logging.INFO)
 timezone = pytz.timezone('Asia/Singapore')
+
+async def get_server_info():
+    conn_str = "mongodb://mongo:cLpDSAhrE8vJDJrPeZL3@containers-us-west-153.railway.app:5519"
+    # set a 5-second connection timeout
+    client = motor.motor_asyncio.AsyncIOMotorClient(conn_str, serverSelectionTimeoutMS=5000)
+    try:
+        print(await client.server_info())
+    except Exception:
+        print("Unable to connect to the server.")
+    return client
+loop = asyncio.get_event_loop()
+client = loop.run_until_complete(get_server_info())
+
+database = client.rpsDatabase_log
+collection = database.testCollection
+document = {'testKey': 'testValue'}
+
+async def do_insert_testCollection(collection, document):
+    result = await collection.insert_one(document)
+    print('result %s' % repr(result.inserted_id))
+
+async def generate_document(discordID, playerChoice, botChoice, result, timestamp):
+    document = {
+        'Discord ID': discordID,
+        'Player Choice': playerChoice,
+        'Bot Choice': botChoice,
+        'Result': result,
+        'Timestamp': timestamp
+    }
+    return document
+
+
+
 
 botToken = os.environ.get("botToken")
 logChannel = int(os.environ.get("logChannel"))
@@ -131,16 +166,22 @@ class RockPaperScissor(discord.ui.View):
             if playerRPSDecision == botRPSDecision:
                 await interaction.followup.send(f"" + gameMessage['tie'], ephemeral=True)
                 await channel.send(f"<@{interaction.user.id}> \n Played: {playerRPSDecision} \n Bot: {botRPSDecision} \n Result: Tie \n Timestamp: {datetime.datetime.now(timezone)}")
+                loop = client.get_io_loop()
+                loop.run_until_complete(do_insert_testCollection(collection, generate_document(interaction.user.id, playerRPSDecision, botRPSDecision, result='Tie', timestamp=datetime.datetime.now(timezone))))
             elif botRPSDecision in gameRules[playerRPSDecision]:
                 action = gameRules[playerRPSDecision][botRPSDecision]
                 await interaction.followup.send(f"{playerRPSDecision.title()} {action} {botRPSDecision}! " + gameMessage['win'], ephemeral=True)
                 await channel.send(f"<@{interaction.user.id}> \n Played: {playerRPSDecision} \n Bot: {botRPSDecision} \n Result: Win \n Timestamp: {datetime.datetime.now(timezone)}")
+                loop = client.get_io_loop()
+                loop.run_until_complete(do_insert_testCollection(collection, generate_document(interaction.user.id, playerRPSDecision, botRPSDecision, result='Tie', timestamp=datetime.datetime.now(timezone))))
                 await player.remove_roles(roles['roleLose'])
                 await player.add_roles(roles['roleWin'])
             else:
                 action = gameRules[botRPSDecision][playerRPSDecision]
                 await interaction.followup.send(f"{botRPSDecision.title()} {action} {playerRPSDecision}! " + gameMessage['lose'], ephemeral=True)
                 await channel.send(f"<@{interaction.user.id}> \n Played: {playerRPSDecision} \n Bot: {botRPSDecision} \n Result: Lose \n Timestamp: {datetime.datetime.now(timezone)}")
+                loop = client.get_io_loop()
+                loop.run_until_complete(do_insert_testCollection(collection, generate_document(interaction.user.id, playerRPSDecision, botRPSDecision, result='Tie', timestamp=datetime.datetime.now(timezone))))
                 await player.remove_roles(roles['roleWin'])
                 await player.add_roles(roles['roleLose'])
 
