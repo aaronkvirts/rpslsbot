@@ -70,7 +70,7 @@ class RockPaperScissor(discord.ui.View):
         player = interaction.user
         botChoices = ['rock', 'paper', 'scissors', 'lizard', 'spock']
 
-        channel = bot.get_channel(os.environ.get("logChannel"))
+        channel = bot.get_channel(logChannel)
 
         roles = {
             'roleWin': interaction.guild.get_role(RPSWinner),
