@@ -167,13 +167,15 @@ class RockPaperScissor(discord.ui.View):
                 await interaction.followup.send(f"" + gameMessage['tie'], ephemeral=True)
                 await channel.send(f"<@{interaction.user.id}> \n Played: {playerRPSDecision} \n Bot: {botRPSDecision} \n Result: Tie \n Timestamp: {datetime.datetime.now(timezone)}")
                 loop = client.get_io_loop()
-                loop.run_until_complete(do_insert_testCollection(collection, generate_document(interaction.user.id, playerRPSDecision, botRPSDecision, result='Tie', timestamp=datetime.datetime.now(timezone))))
+                document = await generate_document(interaction.user.id, playerRPSDecision, botRPSDecision, result='Tie', timestamp=datetime.datetime.now(timezone))
+                loop.run_until_complete(await do_insert_testCollection(collection, document))
             elif botRPSDecision in gameRules[playerRPSDecision]:
                 action = gameRules[playerRPSDecision][botRPSDecision]
                 await interaction.followup.send(f"{playerRPSDecision.title()} {action} {botRPSDecision}! " + gameMessage['win'], ephemeral=True)
                 await channel.send(f"<@{interaction.user.id}> \n Played: {playerRPSDecision} \n Bot: {botRPSDecision} \n Result: Win \n Timestamp: {datetime.datetime.now(timezone)}")
                 loop = client.get_io_loop()
-                loop.run_until_complete(do_insert_testCollection(collection, generate_document(interaction.user.id, playerRPSDecision, botRPSDecision, result='Tie', timestamp=datetime.datetime.now(timezone))))
+                document = await generate_document(interaction.user.id, playerRPSDecision, botRPSDecision, result='Win', timestamp=datetime.datetime.now(timezone))
+                loop.run_until_complete(await do_insert_testCollection(collection, document))
                 await player.remove_roles(roles['roleLose'])
                 await player.add_roles(roles['roleWin'])
             else:
@@ -181,7 +183,8 @@ class RockPaperScissor(discord.ui.View):
                 await interaction.followup.send(f"{botRPSDecision.title()} {action} {playerRPSDecision}! " + gameMessage['lose'], ephemeral=True)
                 await channel.send(f"<@{interaction.user.id}> \n Played: {playerRPSDecision} \n Bot: {botRPSDecision} \n Result: Lose \n Timestamp: {datetime.datetime.now(timezone)}")
                 loop = client.get_io_loop()
-                loop.run_until_complete(do_insert_testCollection(collection, generate_document(interaction.user.id, playerRPSDecision, botRPSDecision, result='Tie', timestamp=datetime.datetime.now(timezone))))
+                document = await generate_document(interaction.user.id, playerRPSDecision, botRPSDecision, result='Lose', timestamp=datetime.datetime.now(timezone))
+                loop.run_until_complete(await do_insert_testCollection(collection, document))
                 await player.remove_roles(roles['roleWin'])
                 await player.add_roles(roles['roleLose'])
 
