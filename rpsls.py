@@ -10,6 +10,13 @@ import os
 logging.basicConfig(level=logging.INFO)
 timezone = pytz.timezone('Asia/Singapore')
 
+botToken = os.environ.get("botToken")
+logChannel = int(os.environ.get("logChannel"))
+RPSWinner = int(os.environ.get("RPSWinner"))
+RPSLoser = int(os.environ.get("RPSLoser"))
+Member = int(os.environ.get("Member"))
+CharityRaffle = int(os.environ.get("CharityRaffle"))
+
 intents = discord.Intents.all()
 intents.message_content = True
 intents.members = True
@@ -63,13 +70,13 @@ class RockPaperScissor(discord.ui.View):
         player = interaction.user
         botChoices = ['rock', 'paper', 'scissors', 'lizard', 'spock']
 
-        channel = bot.get_channel(os.environ['logChannel'])
+        channel = bot.get_channel(os.environ.get("logChannel"))
 
         roles = {
-            'roleWin': interaction.guild.get_role(os.environ['RPSWinner']),
-            'roleLose': interaction.guild.get_role(os.environ['RPSLoser']),
-            'roleRaffler': interaction.guild.get_role(os.environ['CharityRaffle']), 
-            'roleMember': interaction.guild.get_role(os.environ['Member'])
+            'roleWin': interaction.guild.get_role(RPSWinner),
+            'roleLose': interaction.guild.get_role(RPSLoser),
+            'roleRaffler': interaction.guild.get_role(CharityRaffle), 
+            'roleMember': interaction.guild.get_role(Member)
         }
 
         gameRules = {
@@ -150,7 +157,7 @@ async def clear(ctx, amount = 5):
 @bot.command(pass_context=True)
 @commands.has_permissions(administrator=True)
 async def RPSWinnerReset(ctx):
-    roleWin = ctx.guild.get_role(os.environ['RPSWinner'])
+    roleWin = ctx.guild.get_role(RPSWinner)
     if roleWin.members:
         for member in roleWin.members:
             await ctx.send(f"Removing <@{member.id}> from RPSWinner role...\n")
@@ -161,7 +168,7 @@ async def RPSWinnerReset(ctx):
 @bot.command(pass_context=True)
 @commands.has_permissions(administrator=True)
 async def RPSResetAll(ctx):
-    roleWin = ctx.guild.get_role(os.environ['RPSWinner'])
+    roleWin = ctx.guild.get_role(RPSWinner)
     if roleWin.members:
         for member in roleWin.members:
             await ctx.send(f"Removing <@{member.id}> from RPSWinner role...\n")
@@ -169,7 +176,7 @@ async def RPSResetAll(ctx):
     else:
         await ctx.send(f"No one else has the winner role")
 
-    roleLose = ctx.guild.get_role(os.environ['RPSLoser'])
+    roleLose = ctx.guild.get_role(RPSLoser)
     if roleLose.members:
         for member in roleLose.members:
             await ctx.send(f"Removing <@{member.id}> from RPSLoser role...\n")
@@ -177,4 +184,4 @@ async def RPSResetAll(ctx):
     else:
         await ctx.send(f"No one else has the loser role")
 
-bot.run(os.environ['botToken'])
+bot.run(botToken)
