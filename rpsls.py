@@ -12,19 +12,9 @@ import motor.motor_asyncio
 logging.basicConfig(level=logging.INFO)
 timezone = pytz.timezone('Asia/Singapore')
 
-async def get_server_info():
-    conn_str = "mongodb://mongo:cLpDSAhrE8vJDJrPeZL3@containers-us-west-153.railway.app:5519"
-    # set a 5-second connection timeout
-    client = motor.motor_asyncio.AsyncIOMotorClient(conn_str, serverSelectionTimeoutMS=5000)
-    try:
-        print(await client.server_info())
-    except Exception:
-        print("Unable to connect to the server.")
-    return client
-
 async def do_insert_testCollection(document):
-    loop = asyncio.get_event_loop()
-    client = loop.run_until_complete(get_server_info())
+    conn_str = "mongodb://mongo:cLpDSAhrE8vJDJrPeZL3@containers-us-west-153.railway.app:5519"
+    client = motor.motor_asyncio.AsyncIOMotorClient(conn_str, serverSelectionTimeoutMS=5000)
     result = await client.rpsDatabase_log.testCollection.insert_one(document)
     print('result %s' % repr(result.inserted_id))
 
