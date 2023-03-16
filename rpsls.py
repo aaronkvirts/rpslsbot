@@ -15,9 +15,12 @@ client = motor.motor_asyncio.AsyncIOMotorClient(os.environ.get("MONGO_URL"), ser
 
 async def check_play_times(userID):
     lastPlayedEntry = await client.rpsDatabase.rpsCollection.find_one({'Discord_ID': userID})
-    if lastPlayedEntry['Times_Played'] == 10:
-        continueToPlay = False
-        return continueToPlay
+    if lastPlayedEntry['Times_Played'] is not None:
+        if lastPlayedEntry['Times_Played'] == 10:
+            continueToPlay = False
+            return continueToPlay
+        else:
+            pass
     else:
         continueToPlay = True
         return continueToPlay
@@ -26,9 +29,13 @@ async def do_insert_rpsCollection(document, userID, matchType, points):
     match matchType:
         case 'leaderboard':
             lastPlayedEntry = await client.rpsDatabase.rpsCollection.find_one({'Discord_ID': userID})
-            if lastPlayedEntry:
+            if lastPlayedEntry is None:
                 finalPoint = lastPlayedEntry['Total_Points'] + points
-                result = await client.rpsDatabase.rpsCollection.update_one({'Discord_ID': userID}, { '$set': {'Total_Points': finalPoint}})
+                finalPlayed = lastPlayedEntry['Times_Played'] + 1
+                result = await client.rpsDatabase.rpsCollection.update_one({'Discord_ID': userID}, { '$set': {
+                    'Total_Points': finalPoint,
+                    'Times_Played': finalPlayed
+                }})
         case 'battleroyale':
             result = await client.rpsDatabase.rpsCollection.insert_one(document)
         case other:
