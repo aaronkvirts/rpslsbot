@@ -18,7 +18,7 @@ async def check_play_times(userID):
     if lastPlayedEntry['Times_Played'] == 10:
         continueToPlay = False
         return continueToPlay
-    elif lastPlayedEntry['Times_Played'] < 10:
+    else:
         continueToPlay = True
         return continueToPlay
 
