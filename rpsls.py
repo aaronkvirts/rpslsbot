@@ -13,7 +13,7 @@ logging.basicConfig(level=logging.INFO)
 timezone = pytz.timezone('Asia/Singapore')
 client = motor.motor_asyncio.AsyncIOMotorClient(os.environ.get("MONGO_URL"), serverSelectionTimeoutMS=5000)
 
-async def check_play_times(userID):
+async def continue_to_play(userID):
     lastPlayedEntry = await client.rpsDatabase.rpsCollection.find_one({'Discord_ID': userID})
     if lastPlayedEntry is not None:
         if lastPlayedEntry['Times_Played'] == 10:
@@ -182,7 +182,7 @@ class RPSLS_leaderboard(discord.ui.View):
         IHopeThisIsRNGEnough = random.SystemRandom()
         botRPSDecision = botChoices[IHopeThisIsRNGEnough.randint(0, 4)]
 
-        if await check_play_times(interaction.user.id) == True:
+        if await continue_to_play(interaction.user.id) == False:
             await interaction.followup.send(f"You've played the maximum of 10 times. No more :(", ephemeral=True)
         else:
             await interaction.followup.send(f"You: {selectionEmoji[playerRPSDecision]} {playerRPSDecision}!\nBot: {selectionEmoji[botRPSDecision]} {botRPSDecision}!", ephemeral=True)
@@ -244,7 +244,7 @@ class RPSLS_battleroyale(discord.ui.View):
 
     async def select_callback(self, select, interaction):
         if select.custom_id == "RockPaperScissorGame_BattleRoyale":
-            await interaction.response.send_message(f"You're now playing Battle Royale Mode")
+            await interaction.response.send_message(f"You're now playing Battle Royale Mode", ephemeral=True)
             
         playerRPSDecision = select.values[0]
         player = interaction.user
