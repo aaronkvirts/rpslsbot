@@ -190,19 +190,19 @@ class RPSLS_leaderboard(discord.ui.View):
                 await interaction.followup.send(f"" + gameMessage['tie'] + "\n You won 1 point!", ephemeral=True)
                 await channel.send(f"<@{interaction.user.id}> \n Played: {playerRPSDecision} \n Bot: {botRPSDecision} \n Result: Tie \n Timestamp: {datetime.datetime.now(timezone)}")
                 document = await generate_document(interaction.user.id, playerRPSDecision, botRPSDecision, result='Tie', timestamp=datetime.datetime.now(timezone))
-                await do_insert_rpsCollection(document, interaction.user.id, playerRPSDecision, botRPSDecision, result='Tie', matchType='leaderboard', points=1)
+                await do_insert_rpsCollection(document, interaction.user.id, playerRPSDecision, botRPSDecision, playResult='Tie', matchType='leaderboard', points=1)
             elif botRPSDecision in gameRules[playerRPSDecision]:
                 action = gameRules[playerRPSDecision][botRPSDecision]
                 await interaction.followup.send(f"{playerRPSDecision.title()} {action} {botRPSDecision}! " + gameMessage['win'] + "\n You won 2 points!", ephemeral=True)
                 await channel.send(f"<@{interaction.user.id}> \n Played: {playerRPSDecision} \n Bot: {botRPSDecision} \n Result: Win \n Timestamp: {datetime.datetime.now(timezone)}")
                 document = await generate_document(interaction.user.id, playerRPSDecision, botRPSDecision, result='Win', timestamp=datetime.datetime.now(timezone))
-                await do_insert_rpsCollection(document, interaction.user.id, playerRPSDecision, botRPSDecision, result='Win', matchType='leaderboard', points=2)
+                await do_insert_rpsCollection(document, interaction.user.id, playerRPSDecision, botRPSDecision, playResult='Win', matchType='leaderboard', points=2)
             else:
                 action = gameRules[botRPSDecision][playerRPSDecision]
                 await interaction.followup.send(f"{botRPSDecision.title()} {action} {playerRPSDecision}! " + gameMessage['lose'] + "\n You lost 1 point!", ephemeral=True)
                 await channel.send(f"<@{interaction.user.id}> \n Played: {playerRPSDecision} \n Bot: {botRPSDecision} \n Result: Lose \n Timestamp: {datetime.datetime.now(timezone)}")
                 document = await generate_document(interaction.user.id, playerRPSDecision, botRPSDecision, result='Lose', timestamp=datetime.datetime.now(timezone))
-                await do_insert_rpsCollection(document, interaction.user.id, playerRPSDecision, botRPSDecision, result='Lose', matchType='leaderboard', points=-1)
+                await do_insert_rpsCollection(document, interaction.user.id, playerRPSDecision, botRPSDecision, playResult='Lose', matchType='leaderboard', points=-1)
 
 class RPSLS_battleroyale(discord.ui.View):
     def __init__(self):
@@ -312,13 +312,13 @@ class RPSLS_battleroyale(discord.ui.View):
                 await interaction.followup.send(f"" + gameMessage['tie'], ephemeral=True)
                 await channel.send(f"<@{interaction.user.id}> \n Played: {playerRPSDecision} \n Bot: {botRPSDecision} \n Result: Tie \n Timestamp: {datetime.datetime.now(timezone)}")
                 document = await generate_document(interaction.user.id, playerRPSDecision, botRPSDecision, result='Tie', timestamp=datetime.datetime.now(timezone))
-                await do_insert_rpsCollection(document, interaction.user.id, playerRPSDecision, botRPSDecision, result='Win', matchType='battleroyale', points=0)
+                await do_insert_rpsCollection(document, interaction.user.id, playerRPSDecision, botRPSDecision, playResult='Win', matchType='battleroyale', points=0)
             elif botRPSDecision in gameRules[playerRPSDecision]:
                 action = gameRules[playerRPSDecision][botRPSDecision]
                 await interaction.followup.send(f"{playerRPSDecision.title()} {action} {botRPSDecision}! " + gameMessage['win'], ephemeral=True)
                 await channel.send(f"<@{interaction.user.id}> \n Played: {playerRPSDecision} \n Bot: {botRPSDecision} \n Result: Win \n Timestamp: {datetime.datetime.now(timezone)}")
                 document = await generate_document(interaction.user.id, playerRPSDecision, botRPSDecision, result='Win', timestamp=datetime.datetime.now(timezone))
-                await do_insert_rpsCollection(document, interaction.user.id, playerRPSDecision, botRPSDecision, result='Win', matchType='battleroyale', points=0)
+                await do_insert_rpsCollection(document, interaction.user.id, playerRPSDecision, botRPSDecision, playResult='Win', matchType='battleroyale', points=0)
                 await player.remove_roles(roles['roleLose'])
                 await player.add_roles(roles['roleWin'])
             else:
@@ -326,7 +326,7 @@ class RPSLS_battleroyale(discord.ui.View):
                 await interaction.followup.send(f"{botRPSDecision.title()} {action} {playerRPSDecision}! " + gameMessage['lose'], ephemeral=True)
                 await channel.send(f"<@{interaction.user.id}> \n Played: {playerRPSDecision} \n Bot: {botRPSDecision} \n Result: Lose \n Timestamp: {datetime.datetime.now(timezone)}")
                 document = await generate_document(interaction.user.id, playerRPSDecision, botRPSDecision, result='Lose', timestamp=datetime.datetime.now(timezone))
-                await do_insert_rpsCollection(document, interaction.user.id, playerRPSDecision, botRPSDecision, result='Win', matchType='battleroyale', points=0)
+                await do_insert_rpsCollection(document, interaction.user.id, playerRPSDecision, botRPSDecision, playResult='Win', matchType='battleroyale', points=0)
                 await player.remove_roles(roles['roleWin'])
                 await player.add_roles(roles['roleLose'])
 
