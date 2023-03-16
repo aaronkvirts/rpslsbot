@@ -105,7 +105,7 @@ class RPSLS_leaderboard(discord.ui.View):
 
     async def select_callback(self, select, interaction):
         if select.custom_id == "RockPaperScissorGame_Leaderboard":
-            await channel.send(f"You're now playing Leaderboard Mode")
+            await interaction.response.send_message(f"You're now playing Leaderboard Mode", ephemeral=True)
 
         playerRPSDecision = select.values[0]
         botChoices = ['rock', 'paper', 'scissors', 'lizard', 'spock']
@@ -153,9 +153,9 @@ class RPSLS_leaderboard(discord.ui.View):
         botRPSDecision = botChoices[IHopeThisIsRNGEnough.randint(0, 4)]
 
         if await check_play_times(interaction.user.id) == True:
-            await interaction.response.send_message(f"You've played the maximum of 10 times. No more :(", ephemeral=True)
+            await interaction.followup.send(f"You've played the maximum of 10 times. No more :(", ephemeral=True)
         else:
-            await interaction.response.send_message(f"You: {selectionEmoji[playerRPSDecision]} {playerRPSDecision}!\nBot: {selectionEmoji[botRPSDecision]} {botRPSDecision}!", ephemeral=True)
+            await interaction.followup.send(f"You: {selectionEmoji[playerRPSDecision]} {playerRPSDecision}!\nBot: {selectionEmoji[botRPSDecision]} {botRPSDecision}!", ephemeral=True)
             if playerRPSDecision == botRPSDecision:
                 await interaction.followup.send(f"" + gameMessage['tie'] + "\n You won 1 point!", ephemeral=True)
                 await channel.send(f"<@{interaction.user.id}> \n Played: {playerRPSDecision} \n Bot: {botRPSDecision} \n Result: Tie \n Timestamp: {datetime.datetime.now(timezone)}")
@@ -214,7 +214,7 @@ class RPSLS_battleroyale(discord.ui.View):
 
     async def select_callback(self, select, interaction):
         if select.custom_id == "RockPaperScissorGame_BattleRoyale":
-            await channel.send(f"You're now playing Battle Royale Mode")
+            await interaction.response.send_message(f"You're now playing Battle Royale Mode")
             
         playerRPSDecision = select.values[0]
         player = interaction.user
@@ -270,13 +270,13 @@ class RPSLS_battleroyale(discord.ui.View):
         botRPSDecision = botChoices[IHopeThisIsRNGEnough.randint(0, 4)]
 
         if roles["roleLose"] in player.roles:
-            await interaction.response.send_message(f"Bruh you lost why you tryna cheat?", ephemeral=True)
+            await interaction.followup.send(f"Bruh you lost why you tryna cheat?", ephemeral=True)
 
         elif roles["roleRaffler"] in player.roles:
-            await interaction.response.send_message(f"I'm sorry but you're not eligible to join this.", ephemeral=True)
+            await interaction.followup.send(f"I'm sorry but you're not eligible to join this.", ephemeral=True)
 
         elif roles["roleWin"] or roles["roleMember"] in player.roles:
-            await interaction.response.send_message(f"You: {selectionEmoji[playerRPSDecision]} {playerRPSDecision}!\nBot: {selectionEmoji[botRPSDecision]} {botRPSDecision}!", ephemeral=True)
+            await interaction.followup.send(f"You: {selectionEmoji[playerRPSDecision]} {playerRPSDecision}!\nBot: {selectionEmoji[botRPSDecision]} {botRPSDecision}!", ephemeral=True)
 
             if playerRPSDecision == botRPSDecision:
                 await interaction.followup.send(f"" + gameMessage['tie'], ephemeral=True)
