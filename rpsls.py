@@ -387,8 +387,27 @@ async def rpsls_showScore(ctx):
 @bot.command(pass_context=True)
 @commands.has_permissions(administrator=True)
 async def rpsls_showLeaderboard(ctx):
+    embedDiscordID = []
+    embedTotalPoints = []
+    embedTimesPlayed = []
+    embedPosition = list(range(1,10))
+
     top10Scorer = client.rpsDatabase.rpsCollection.find().sort('Total_Points', -1).limit(10)
     async for entries in top10Scorer:
-        await ctx.send(f"<@{entries['Discord_ID']}> ---- Total Points: {entries['Total_Points']} ---- Times Played: {entries['Times_Played']}")
+        embedDiscordID.append("<@" + entries['Discord_ID'] + ">")
+        embedTotalPoints.append(entries['Total_Points'])
+        embedTimesPlayed.append(entries['Times_Played'])
+
+    leaderboardEmbed = discord.Embed(
+        title = "RPSLS Leaderboards",
+        description = "A top 10 leaderboard for RPSLS league, refreshed every 30 minutes",
+        color = discord.Color.greyple()
+    )
+    leaderboardEmbed.add_field(name="Position", value=embedPosition, inline=True)
+    leaderboardEmbed.add_field(name="Username", value=embedDiscordID, inline=True)
+    leaderboardEmbed.add_field(name="Total Points", value=embedTotalPoints, inline=True)
+    leaderboardEmbed.add_field(name="Times Played", value=embedTimesPlayed, inline=True)
+
+    await ctx.respond(embed=leaderboardEmbed)
 
 bot.run(botToken)
