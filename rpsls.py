@@ -418,6 +418,6 @@ async def rpsls_showLeaderboardLoop(leaderboardMessage):
             message = await channel.fetch_message(leaderboardMessage.id)
             await message.edit(embed=leaderboardEmbed)
             print(f"Scoreboard updated: {datetime.datetime.now(timezone)}")
-        await asyncio.sleep(30)
+        await asyncio.sleep(int(os.environ.get("leaderboardRefreshSeconds")))
 
 bot.run(botToken)
