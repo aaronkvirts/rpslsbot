@@ -390,13 +390,13 @@ async def rpsls_showLeaderboard(ctx):
     embedDiscordID = []
     embedTotalPoints = []
     embedTimesPlayed = []
-    embedPosition = list(range(1,10))
+    embedPosition = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10']
 
     top10Scorer = client.rpsDatabase.rpsCollection.find().sort('Total_Points', -1).limit(10)
     async for entries in top10Scorer:
         embedDiscordID.append("<@" + str(entries['Discord_ID']) + ">")
-        embedTotalPoints.append(entries['Total_Points'])
-        embedTimesPlayed.append(entries['Times_Played'])
+        embedTotalPoints.append(str(entries['Total_Points']))
+        embedTimesPlayed.append(str(entries['Times_Played']))
 
     leaderboardEmbed = discord.Embed(
         title = "RPSLS Leaderboards",
