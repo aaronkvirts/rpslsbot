@@ -388,10 +388,10 @@ async def rpsls_showScore(ctx):
 @bot.command(pass_context=True)
 @commands.has_permissions(administrator=True)
 async def rpsls_showLeaderboard(ctx):
-    leaderboardMessageID = await bot.get_channel(leaderboardChannel).send(f"Leaderboard anytime soon....")
-    bot.loop.create_task(rpsls_showLeaderboardLoop(leaderboardMessageID))
+    leaderboardMessage = await bot.get_channel(leaderboardChannel).send(f"Leaderboard anytime soon....")
+    bot.loop.create_task(rpsls_showLeaderboardLoop(leaderboardMessage))
     
-async def rpsls_showLeaderboardLoop(leaderboardMessageID):
+async def rpsls_showLeaderboardLoop(leaderboardMessage):
     while True:
         channel = bot.get_channel(leaderboardChannel)
         position = 0
@@ -406,9 +406,9 @@ async def rpsls_showLeaderboardLoop(leaderboardMessageID):
 
         if top10Scorer is None:
             leaderboardEmbed.add_field(name=f"**Leaderboard**", value=f"> Still empty now...", inline=False)
-            if leaderboardMessageID is not None:
-                print(f"{leaderboardMessageID}\n\nNO LEADERBOARD MESSAGE ID!!!")
-            message = await channel.fetch_message(leaderboardMessageID)
+            if leaderboardMessage is not None:
+                print(f"{leaderboardMessage.id}\n\nTHERE ISS LEADERBOARD MESSAGE ID!!!")
+            message = await channel.fetch_message(leaderboardMessage.id)
             await message.edit(embed=leaderboardEmbed)
         else:
             async for entries in top10Scorer:
@@ -416,9 +416,9 @@ async def rpsls_showLeaderboardLoop(leaderboardMessageID):
                                         value=f"> Username <@{entries['Discord_ID']}> \n > Total Points {entries['Total_Points']} \n > Times Played {entries['Times_Played']} \n ", 
                                         inline=False)
                 position += 1
-            if leaderboardMessageID is not None:
-                print(f"{leaderboardMessageID}\n\nNO LEADERBOARD MESSAGE ID!!!")
-            message = await channel.fetch_message(leaderboardMessageID)
+            if leaderboardMessage is not None:
+                print(f"{leaderboardMessage.id}\n\nTHERE IS LEADERBOARD MESSAGE ID!!!")
+            message = await channel.fetch_message(leaderboardMessage.id)
             await message.edit(embed=leaderboardEmbed)
         await asyncio.sleep(30)
 
