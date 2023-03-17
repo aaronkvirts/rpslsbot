@@ -28,16 +28,15 @@ async def continue_to_play(userID):
 async def do_insert_rpsCollection(document, userID, playerChoice, botChoice, playResult, matchType, points):
     match matchType:
         case 'leaderboard':
-            lastPlayedEntry = await client.rpsDatabase.rpsCollection.find_one({'Discord_ID': userID})
-
-            if lastPlayedEntry is None:
+            if client.rpsDatabase.rpsCollection.find_one({'Discord_ID': userID}) is None:
                 await client.rpsDatabase.rpsCollection.insert_one(document)
 
+            lastPlayedEntry = await client.rpsDatabase.rpsCollection.find_one({'Discord_ID': userID})
             finalPoint = lastPlayedEntry['Total_Points'] + points
             finalPlayed = lastPlayedEntry['Times_Played'] + 1
             timestamp=datetime.datetime.now(timezone)
 
-            result = await client.rpsDatabase.rpsCollection.update_one({'Discord_ID': userID}, { '$set': {
+            await client.rpsDatabase.rpsCollection.update_one({'Discord_ID': userID}, { '$set': {
                 'Last_Player_Choice': playerChoice,
                 'Last_Bot_Choice': botChoice,
                 'Last_Result': playResult,
