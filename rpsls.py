@@ -408,6 +408,6 @@ async def rpsls_showLeaderboard(ctx):
     leaderboardEmbed.add_field(name="Total Points", value=embedTotalPoints, inline=True)
     leaderboardEmbed.add_field(name="Times Played", value=embedTimesPlayed, inline=True)
 
-    await ctx.respond(embed=leaderboardEmbed)
+    await ctx.send(embed=leaderboardEmbed)
 
 bot.run(botToken)
