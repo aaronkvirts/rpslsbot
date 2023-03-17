@@ -387,10 +387,8 @@ async def rpsls_showScore(ctx):
 @bot.command(pass_context=True)
 @commands.has_permissions(administrator=True)
 async def rpsls_showLeaderboard(ctx):
-    userID = ctx.author.id
     top10Scorer = client.rpsDatabase.rpsCollection.find().sort('Total_Points', -1).limit(10)
 
-    for x in top10Scorer:
-        await ctx.send(f"{x}")
+    await ctx.send(f"{top10Scorer}")
 
 bot.run(botToken)
