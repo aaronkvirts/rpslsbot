@@ -403,10 +403,10 @@ async def rpsls_showLeaderboard(ctx):
         description = "A top 10 leaderboard for RPSLS league, refreshed every 30 minutes",
         color = discord.Color.greyple()
     )
-    leaderboardEmbed.add_field(name="Position", value=embedPosition, inline=True)
-    leaderboardEmbed.add_field(name="Username", value=embedDiscordID, inline=True)
-    leaderboardEmbed.add_field(name="Total Points", value=embedTotalPoints, inline=True)
-    leaderboardEmbed.add_field(name="Times Played", value=embedTimesPlayed, inline=True)
+    leaderboardEmbed.add_field(name="Position", value='\n'.join(position for position in embedPosition), inline=True)
+    leaderboardEmbed.add_field(name="Username", value='\n'.join(DiscordID for DiscordID in embedDiscordID), inline=True)
+    leaderboardEmbed.add_field(name="Total Points", value='\n'.join(TotalPoints for TotalPoints in embedTotalPoints), inline=True)
+    leaderboardEmbed.add_field(name="Times Played", value='\n'.join(TimesPlayed for TimesPlayed in embedTimesPlayed), inline=True)
 
     await ctx.send(embed=leaderboardEmbed)
 
