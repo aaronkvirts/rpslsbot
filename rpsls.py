@@ -406,6 +406,8 @@ async def rpsls_showLeaderboardLoop(leaderboardMessageID):
 
         if top10Scorer is None:
             leaderboardEmbed.add_field(name=f"**Leaderboard**", value=f"> Still empty now...", inline=False)
+            if leaderboardMessageID is not None:
+                print(f"{leaderboardMessageID}\n\nNO LEADERBOARD MESSAGE ID!!!")
             message = await channel.fetch_message(leaderboardMessageID)
             await message.edit(embed=leaderboardEmbed)
         else:
@@ -414,6 +416,8 @@ async def rpsls_showLeaderboardLoop(leaderboardMessageID):
                                         value=f"> Username <@{entries['Discord_ID']}> \n > Total Points {entries['Total_Points']} \n > Times Played {entries['Times_Played']} \n ", 
                                         inline=False)
                 position += 1
+            if leaderboardMessageID is not None:
+                print(f"{leaderboardMessageID}\n\nNO LEADERBOARD MESSAGE ID!!!")
             message = await channel.fetch_message(leaderboardMessageID)
             await message.edit(embed=leaderboardEmbed)
         await asyncio.sleep(30)
