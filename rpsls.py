@@ -60,10 +60,8 @@ async def do_insert_rpsCollection(document, userID, playerChoice, botChoice, pla
                 'Last_Result': playResult,
                 'Last_Timestamp': timestamp
             }})
-            result = await client.rpsDatabase.rpsCollection.insert_one(document)
         case other:
             pass
-    print('result %s' % repr(result.inserted_id))
 
 async def generate_document(discordID, playerChoice, botChoice, result, timestamp):
     document = {
@@ -391,8 +389,8 @@ async def rpsls_showScore(ctx):
 @commands.has_permissions(administrator=True)
 async def rpsls_showLeaderboard(ctx):
     userID = ctx.author.id
-    top10Scorer = await client.rpsDatabase.rpsCollection.find().sort('Total_Points', -1).limit(10)
-    
+    top10Scorer = client.rpsDatabase.rpsCollection.find().sort('Total_Points', -1).limit(10)
+
     for x in top10Scorer:
         await ctx.send(f"{x}")
 
