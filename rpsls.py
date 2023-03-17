@@ -26,7 +26,7 @@ async def continue_to_play(userID):
         return continueToPlay
 
 async def do_insert_rpsCollection(document, userID, playerChoice, botChoice, playResult, matchType, points):
-    entry = client.rpsDatabase.rpsCollection.find_one({'Discord_ID': userID})
+    entry = await client.rpsDatabase.rpsCollection.find_one({'Discord_ID': userID})
     match matchType:
         case 'leaderboard':
             if entry is None:
@@ -47,9 +47,8 @@ async def do_insert_rpsCollection(document, userID, playerChoice, botChoice, pla
             }})
 
         case 'battleroyale':
-            lastPlayedEntry = await client.rpsDatabase.rpsCollection.find_one({'Discord_ID': userID})
 
-            if lastPlayedEntry is None:
+            if entry is None:
                 await client.rpsDatabase.rpsCollection.insert_one(document)
 
             timestamp=datetime.datetime.now(timezone)
