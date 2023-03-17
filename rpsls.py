@@ -393,7 +393,7 @@ async def rpsls_showLeaderboard(ctx):
     
 @tasks.loop(seconds=30.0)
 async def rpsls_showLeaderboardLoop(leaderboardMessageID):
-    channel = await bot.get_channel(leaderboardChannel)
+    channel = bot.get_channel(leaderboardChannel)
     position = 0
     embedPosition = ['First', 'Second', 'Third', 'Fourth', 'Fifth', 'Sixth', 'Seventh', 'Eighth', 'Nineth', 'Tenth']
     top10Scorer = client.rpsDatabase.rpsCollection.find().sort('Total_Points', -1).limit(10)
