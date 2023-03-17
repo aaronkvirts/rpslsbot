@@ -80,6 +80,7 @@ RPSWinner = int(os.environ.get("RPSWinner"))
 RPSLoser = int(os.environ.get("RPSLoser"))
 Member = int(os.environ.get("Member"))
 CharityRaffle = int(os.environ.get("CharityRaffle"))
+leaderboardChannel = int(os.environ.get("leaderboardChannel"))
 
 intents = discord.Intents.all()
 intents.message_content = True
@@ -383,10 +384,16 @@ async def rpsls_showScore(ctx):
         await ctx.send(f"<@{userID}>, you now have {lastPlayedEntry['Total_Points']} points.\n")
     else:
         await ctx.send(f"<@{userID}>, you have not played at all.\n")
-    
+
 @bot.command(pass_context=True)
 @commands.has_permissions(administrator=True)
 async def rpsls_showLeaderboard(ctx):
+    leaderboardMessageID = await bot.get_channel(leaderboardChannel).send(f"Leaderboard anytime soon....")
+    bot.loop.create_task(rpsls_showLeaderboardLoop(leaderboardMessageID))
+    
+@tasks.loop(seconds=30.0)
+async def rpsls_showLeaderboardLoop(leaderboardMessageID):
+    channel = await bot.get_channel(leaderboardChannel)
     position = 0
     embedPosition = ['First', 'Second', 'Third', 'Fourth', 'Fifth', 'Sixth', 'Seventh', 'Eighth', 'Nineth', 'Tenth']
     top10Scorer = client.rpsDatabase.rpsCollection.find().sort('Total_Points', -1).limit(10)
@@ -396,13 +403,18 @@ async def rpsls_showLeaderboard(ctx):
         description = "A top 10 leaderboard for RPSLS league, refreshed every 30 minutes",
         color = discord.Color.greyple()
     )
-    
-    async for entries in top10Scorer:
-        leaderboardEmbed.add_field(name=f"**{embedPosition[position]}**", 
-                                   value=f"> Username <@{entries['Discord_ID']}> \n > Total Points {entries['Total_Points']} \n > Times Played {entries['Times_Played']} \n ", 
-                                   inline=False)
-        position += 1
 
-    await ctx.send(embed=leaderboardEmbed)
+    if top10Scorer is None:
+        leaderboardEmbed.add_field(name=f"**Leaderboard**", value=f"> Still empty now...", inline=False)
+        message = await channel.fetch_message(leaderboardMessageID)
+        await message.edit(embed=leaderboardEmbed)
+    else:
+        async for entries in top10Scorer:
+            leaderboardEmbed.add_field(name=f"**{embedPosition[position]}**", 
+                                    value=f"> Username <@{entries['Discord_ID']}> \n > Total Points {entries['Total_Points']} \n > Times Played {entries['Times_Played']} \n ", 
+                                    inline=False)
+            position += 1
+        message = await channel.fetch_message(leaderboardMessageID)
+        await message.edit(embed=leaderboardEmbed)
 
 bot.run(botToken)
