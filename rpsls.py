@@ -381,6 +381,7 @@ async def RPSResetAll(ctx):
 async def rpsls_showScore(ctx):
     userID = ctx.author.id
     lastPlayedEntry = await client.rpsDatabase.rpsCollection.find_one({'Discord_ID': userID})
+
     if lastPlayedEntry:
         await ctx.send(f"<@{userID}>, you now have {lastPlayedEntry['Total_Points']} points.\n")
     else:
@@ -391,6 +392,7 @@ async def rpsls_showScore(ctx):
 async def rpsls_showLeaderboard(ctx):
     userID = ctx.author.id
     top10Scorer = await client.rpsDatabase.rpsCollection.find().sort('Total_Points', -1).limit(10)
+    
     for x in top10Scorer:
         await ctx.send(f"{x}")
 
