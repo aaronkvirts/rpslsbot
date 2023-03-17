@@ -399,7 +399,7 @@ async def rpsls_showLeaderboard(ctx):
     
     async for entries in top10Scorer:
         leaderboardEmbed.add_field(name=f"**{embedPosition[position]}**", 
-                                   value=f"> Username <@{entries['Discord_ID']}> \n > Total Points <@{entries['Total_Points']}> \n > Times Played <@{entries['Times_Played']}> \n ", 
+                                   value=f"> Username <@{entries['Discord_ID']}> \n > Total Points {entries['Total_Points']} \n > Times Played {entries['Times_Played']} \n ", 
                                    inline=False)
         position += 1
 
