@@ -387,26 +387,19 @@ async def rpsls_showScore(ctx):
 @bot.command(pass_context=True)
 @commands.has_permissions(administrator=True)
 async def rpsls_showLeaderboard(ctx):
-    embedDiscordID = []
-    embedTotalPoints = []
-    embedTimesPlayed = []
-    embedPosition = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10']
-
+    embedPosition = ['First', 'Second', 'Third', 'Fourth', 'Fifth', 'Sixth', 'Seventh', 'Eighth', 'Nineth', 'Tenth']
     top10Scorer = client.rpsDatabase.rpsCollection.find().sort('Total_Points', -1).limit(10)
-    async for entries in top10Scorer:
-        embedDiscordID.append("<@" + str(entries['Discord_ID']) + ">")
-        embedTotalPoints.append(str(entries['Total_Points']))
-        embedTimesPlayed.append(str(entries['Times_Played']))
 
     leaderboardEmbed = discord.Embed(
         title = "RPSLS Leaderboards",
         description = "A top 10 leaderboard for RPSLS league, refreshed every 30 minutes",
         color = discord.Color.greyple()
     )
-    leaderboardEmbed.add_field(name="Position", value='\n'.join(position for position in embedPosition), inline=True)
-    leaderboardEmbed.add_field(name="Username", value='\n'.join(DiscordID for DiscordID in embedDiscordID), inline=True)
-    leaderboardEmbed.add_field(name="Total Points", value='\n'.join(TotalPoints for TotalPoints in embedTotalPoints), inline=True)
-    leaderboardEmbed.add_field(name="Times Played", value='\n'.join(TimesPlayed for TimesPlayed in embedTimesPlayed), inline=True)
+    
+    async for entries, position in enumerate(top10Scorer):
+        leaderboardEmbed.add_field(name=f"**{embedPosition[position]}**", 
+                                   value=f"> Username <@{entries['Discord_ID']}> \n > Total Points <@{entries['Total_Points']}> \n > Times Played <@{entries['Times_Played']}> \n ", 
+                                   inline=False)
 
     await ctx.send(embed=leaderboardEmbed)
 
