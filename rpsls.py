@@ -388,7 +388,7 @@ async def rpsls_showScore(ctx):
 @bot.command(pass_context=True)
 @commands.has_permissions(administrator=True)
 async def rpsls_showLeaderboard(ctx):
-    leaderboardMessage = await bot.get_channel(leaderboardChannel).send(f"")
+    leaderboardMessage = await bot.get_channel(leaderboardChannel).send(f"‎ ")
     bot.loop.create_task(rpsls_showLeaderboardLoop(leaderboardMessage))
     
 async def rpsls_showLeaderboardLoop(leaderboardMessage):
