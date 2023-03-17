@@ -35,7 +35,7 @@ async def do_insert_rpsCollection(document, userID, playerChoice, botChoice, pla
             lastPlayedEntry = await client.rpsDatabase.rpsCollection.find_one({'Discord_ID': userID})
             finalPoint = lastPlayedEntry['Total_Points'] + points
             finalPlayed = lastPlayedEntry['Times_Played'] + 1
-            timestamp=datetime.datetime.now(timezone)
+            timestamp = datetime.datetime.now(timezone)
 
             await client.rpsDatabase.rpsCollection.update_one({'Discord_ID': userID}, { '$set': {
                 'Last_Player_Choice': playerChoice,
@@ -51,7 +51,7 @@ async def do_insert_rpsCollection(document, userID, playerChoice, botChoice, pla
             if entry is None:
                 await client.rpsDatabase.rpsCollection.insert_one(document)
 
-            timestamp=datetime.datetime.now(timezone)
+            timestamp = datetime.datetime.now(timezone)
 
             result = await client.rpsDatabase.rpsCollection.update_one({'Discord_ID': userID}, { '$set': {
                 'Last_Player_Choice': playerChoice,
@@ -394,7 +394,7 @@ async def rpsls_showLeaderboard(ctx):
 
     top10Scorer = client.rpsDatabase.rpsCollection.find().sort('Total_Points', -1).limit(10)
     async for entries in top10Scorer:
-        embedDiscordID.append("<@" + entries['Discord_ID'] + ">")
+        embedDiscordID.append("<@" + str(entries['Discord_ID']) + ">")
         embedTotalPoints.append(entries['Total_Points'])
         embedTimesPlayed.append(entries['Times_Played'])
 
