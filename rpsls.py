@@ -387,6 +387,7 @@ async def rpsls_showScore(ctx):
 @bot.command(pass_context=True)
 @commands.has_permissions(administrator=True)
 async def rpsls_showLeaderboard(ctx):
+    position = 0
     embedPosition = ['First', 'Second', 'Third', 'Fourth', 'Fifth', 'Sixth', 'Seventh', 'Eighth', 'Nineth', 'Tenth']
     top10Scorer = client.rpsDatabase.rpsCollection.find().sort('Total_Points', -1).limit(10)
 
@@ -396,10 +397,11 @@ async def rpsls_showLeaderboard(ctx):
         color = discord.Color.greyple()
     )
     
-    async for entries, position in enumerate(top10Scorer):
+    async for entries in top10Scorer:
         leaderboardEmbed.add_field(name=f"**{embedPosition[position]}**", 
                                    value=f"> Username <@{entries['Discord_ID']}> \n > Total Points <@{entries['Total_Points']}> \n > Times Played <@{entries['Times_Played']}> \n ", 
                                    inline=False)
+        position += 1
 
     await ctx.send(embed=leaderboardEmbed)
 
