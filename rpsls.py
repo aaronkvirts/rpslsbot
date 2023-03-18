@@ -12,54 +12,11 @@ import motor.motor_asyncio
 logging.basicConfig(level=logging.INFO)
 timezone = pytz.timezone('Asia/Singapore')
 
-async def continue_to_play(userID):
-    lastPlayedEntry = await client.rpsDatabase.rpsCollection.find_one({'Discord_ID': userID})
-    if lastPlayedEntry is not None:
-        if lastPlayedEntry['Times_Played'] == 10:
-            continueToPlay = False
-            return continueToPlay
-        else:
-            pass
-    else:
-        continueToPlay = True
-        return continueToPlay
-
-async def do_insert_rpsCollection(document, userID, playerChoice, botChoice, playResult, matchType, points):
-    entry = await client.rpsDatabase.rpsCollection.find_one({'Discord_ID': userID})
-    match matchType:
-        case 'leaderboard':
-            if entry is None:
-                await client.rpsDatabase.rpsCollection.insert_one(document)
-
-            lastPlayedEntry = await client.rpsDatabase.rpsCollection.find_one({'Discord_ID': userID})
-            finalPoint = lastPlayedEntry['Total_Points'] + points
-            finalPlayed = lastPlayedEntry['Times_Played'] + 1
-            timestamp = datetime.datetime.now(timezone)
-
-            await client.rpsDatabase.rpsCollection.update_one({'Discord_ID': userID}, { '$set': {
-                'Last_Player_Choice': playerChoice,
-                'Last_Bot_Choice': botChoice,
-                'Last_Result': playResult,
-                'Last_Timestamp': timestamp,
-                'Total_Points': finalPoint,
-                'Times_Played': finalPlayed
-            }})
-
-        case 'battleroyale':
-
-            if entry is None:
-                await client.rpsDatabase.rpsCollection.insert_one(document)
-
-            timestamp = datetime.datetime.now(timezone)
-
-            result = await client.rpsDatabase.rpsCollection.update_one({'Discord_ID': userID}, { '$set': {
-                'Last_Player_Choice': playerChoice,
-                'Last_Bot_Choice': botChoice,
-                'Last_Result': playResult,
-                'Last_Timestamp': timestamp
-            }})
-        case other:
-            pass
+async def do_insert_testCollection(document):
+    conn_str = "mongodb://mongo:cLpDSAhrE8vJDJrPeZL3@containers-us-west-153.railway.app:5519"
+    client = motor.motor_asyncio.AsyncIOMotorClient(conn_str, serverSelectionTimeoutMS=5000)
+    result = await client.rpsDatabase_log.testCollection.insert_one(document)
+    print('result %s' % repr(result.inserted_id))
 
 async def generate_document(discordID, playerChoice, botChoice, result, timestamp):
     document = {
@@ -77,7 +34,6 @@ RPSWinner = int(os.environ.get("RPSWinner"))
 RPSLoser = int(os.environ.get("RPSLoser"))
 Member = int(os.environ.get("Member"))
 CharityRaffle = int(os.environ.get("CharityRaffle"))
-leaderboardChannel = int(os.environ.get("leaderboardChannel"))
 
 intents = discord.Intents.all()
 intents.message_content = True
@@ -251,50 +207,5 @@ async def RPSResetAll(ctx):
             await member.remove_roles(roleLose)
     else:
         await ctx.send(f"No one else has the loser role")
-
-@bot.command(pass_context=True)
-async def rpsls_showScore(ctx):
-    userID = ctx.author.id
-    lastPlayedEntry = await client.rpsDatabase.rpsCollection.find_one({'Discord_ID': userID})
-
-    if lastPlayedEntry:
-        await ctx.send(f"<@{userID}>, you now have {lastPlayedEntry['Total_Points']} points.\n")
-    else:
-        await ctx.send(f"<@{userID}>, you have not played at all.\n")
-
-@bot.command(pass_context=True)
-@commands.has_permissions(administrator=True)
-async def rpsls_showLeaderboard(ctx):
-    leaderboardMessage = await bot.get_channel(leaderboardChannel).send(f"‎ ")
-    bot.loop.create_task(rpsls_showLeaderboardLoop(leaderboardMessage))
-    
-async def rpsls_showLeaderboardLoop(leaderboardMessage):
-    while True:
-        channel = bot.get_channel(leaderboardChannel)
-        position = 0
-        embedPosition = ['First', 'Second', 'Third', 'Fourth', 'Fifth', 'Sixth', 'Seventh', 'Eighth', 'Nineth', 'Tenth']
-        top10Scorer = client.rpsDatabase.rpsCollection.find().sort('Total_Points', -1).limit(10)
-
-        leaderboardEmbed = discord.Embed(
-            title = "RPSLS Leaderboards",
-            description = "A top 10 leaderboard for RPSLS league, refreshed every 30 minutes",
-            color = discord.Color.greyple()
-        )
-
-        if top10Scorer is None:
-            leaderboardEmbed.add_field(name=f"**Leaderboard**", value=f"> Still empty now...", inline=False)
-            message = await channel.fetch_message(leaderboardMessage.id)
-            await message.edit(embed=leaderboardEmbed)
-            print(f"Scoreboard updated: {datetime.datetime.now(timezone)}")
-        else:
-            async for entries in top10Scorer:
-                leaderboardEmbed.add_field(name=f"**{embedPosition[position]}**", 
-                                        value=f"> Username <@{entries['Discord_ID']}> \n > Total Points {entries['Total_Points']} \n > Times Played {entries['Times_Played']} \n ", 
-                                        inline=False)
-                position += 1
-            message = await channel.fetch_message(leaderboardMessage.id)
-            await message.edit(embed=leaderboardEmbed)
-            print(f"Scoreboard updated: {datetime.datetime.now(timezone)}")
-        await asyncio.sleep(int(os.environ.get("leaderboardRefreshSeconds")))
 
 bot.run(botToken)
