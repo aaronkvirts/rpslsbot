@@ -90,12 +90,10 @@ intents.members = True
 bot = commands.Bot(command_prefix='!!', intents=intents)
 
 async def leaderboard_engine(interaction, playerRPSDecision):
-    await playerLogChannel.send(f"You're now playing Leaderboard Mode", ephemeral=True)
-
-    botChoices = ['rock', 'paper', 'scissors', 'lizard', 'spock']
-
     logChannel = bot.get_channel(dc_logChannel)
     playerLogChannel = bot.get_channel(dc_playerLogChannel)
+
+    botChoices = ['rock', 'paper', 'scissors', 'lizard', 'spock']
 
     gameRules = {
         'rock': {
@@ -160,13 +158,11 @@ async def leaderboard_engine(interaction, playerRPSDecision):
             await do_insert_rpsCollection(document, interaction.user.id, playerRPSDecision, botRPSDecision, playResult='Lose', matchType='leaderboard', points=-1)
 
 async def battleroyale_engine(interaction, playerRPSDecision):
-    await interaction.response.send_message(f"You're now playing Battle Royale Mode", ephemeral=True)
+    logChannel = bot.get_channel(dc_logChannel)
+    playerLogChannel = bot.get_channel(dc_playerLogChannel)
 
     player = interaction.user
     botChoices = ['rock', 'paper', 'scissors', 'lizard', 'spock']
-
-    logChannel = bot.get_channel(dc_logChannel)
-    playerLogChannel = bot.get_channel(dc_playerLogChannel)
 
     roles = {
         'roleWin': interaction.guild.get_role(RPSWinner),
