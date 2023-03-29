@@ -75,7 +75,7 @@ async def generate_document(discordID, playerChoice, botChoice, result, timestam
     return document
 
 botToken = os.environ.get("botToken")
-logChannel = int(os.environ.get("logChannel"))
+dc_logChannel = int(os.environ.get("logChannel"))
 RPSWinner = int(os.environ.get("RPSWinner"))
 RPSLoser = int(os.environ.get("RPSLoser"))
 Member = int(os.environ.get("Member"))
@@ -88,6 +88,151 @@ intents.members = True
 
 bot = commands.Bot(command_prefix='!!', intents=intents)
 
+async def leaderboard_engine(interaction, playerRPSDecision):
+    logChannel = bot.get_channel(dc_logChannel)
+
+    botChoices = ['rock', 'paper', 'scissors', 'lizard', 'spock']
+
+    gameRules = {
+        'rock': {
+            'scissors': 'smashes',
+            'lizard': 'crushes'
+        },
+        'paper': {
+            'rock': 'covers',
+            'spock': 'disproves'
+        },
+        'scissors': {
+            'paper': 'cuts',
+            'lizard': 'decapitates'
+        },
+        'lizard': {
+            'paper': 'eats',
+            'spock': 'poisons'
+        },
+        'spock': {
+            'rock': 'vaporizes',
+            'scissors': 'smashes'
+        }
+    }
+
+    gameMessage = {
+        'win': 'You win!',
+        'lose': 'You lose :(',
+        'tie': "It's a tie!"
+    }
+
+    selectionEmoji = {
+        'rock': '✊',
+        'paper': '🖐️',
+        'scissors': '✌️',
+        'lizard': '🤌',
+        'spock': '🖖'
+    }
+
+    IHopeThisIsRNGEnough = random.SystemRandom()
+    botRPSDecision = botChoices[IHopeThisIsRNGEnough.randint(0, 4)]
+
+    if await continue_to_play(interaction.user.id) == False:
+        await interaction.response.send_message(f"You've played the maximum of 10 times. No more :(", ephemeral=True)
+    else:
+        if playerRPSDecision == botRPSDecision:
+            await interaction.response.send_message(f"Selection recorded", ephemeral=True, delete_after=3.0)
+            await logChannel.send(f"<@{interaction.user.id}> \n Played: {playerRPSDecision} \n Bot: {botRPSDecision} \n Result: Tie \n Timestamp: {datetime.datetime.now(timezone)} \n Points Won: 1 \n")
+            document = await generate_document(interaction.user.id, playerRPSDecision, botRPSDecision, result='Tie', timestamp=datetime.datetime.now(timezone))
+            await do_insert_rpsCollection(document, interaction.user.id, playerRPSDecision, botRPSDecision, playResult='Tie', matchType='leaderboard', points=1)
+        elif botRPSDecision in gameRules[playerRPSDecision]:
+            await interaction.response.send_message(f"Selection recorded", ephemeral=True, delete_after=3.0)
+            await logChannel.send(f"<@{interaction.user.id}> \n Played: {playerRPSDecision} \n Bot: {botRPSDecision} \n Result: Win \n Timestamp: {datetime.datetime.now(timezone)} \n Points Won: 2 \n")
+            document = await generate_document(interaction.user.id, playerRPSDecision, botRPSDecision, result='Win', timestamp=datetime.datetime.now(timezone))
+            await do_insert_rpsCollection(document, interaction.user.id, playerRPSDecision, botRPSDecision, playResult='Win', matchType='leaderboard', points=2)
+        else:
+            await interaction.response.send_message(f"Selection recorded", ephemeral=True, delete_after=3.0)
+            await logChannel.send(f"<@{interaction.user.id}> \n Played: {playerRPSDecision} \n Bot: {botRPSDecision} \n Result: Lose \n Timestamp: {datetime.datetime.now(timezone)} \n Points Lost: 1 \n")
+            document = await generate_document(interaction.user.id, playerRPSDecision, botRPSDecision, result='Lose', timestamp=datetime.datetime.now(timezone))
+            await do_insert_rpsCollection(document, interaction.user.id, playerRPSDecision, botRPSDecision, playResult='Lose', matchType='leaderboard', points=-1)
+
+async def battleroyale_engine(interaction, playerRPSDecision):
+    logChannel = bot.get_channel(dc_logChannel)
+
+    player = interaction.user
+    botChoices = ['rock', 'paper', 'scissors', 'lizard', 'spock']
+
+    roles = {
+        'roleWin': interaction.guild.get_role(RPSWinner),
+        'roleLose': interaction.guild.get_role(RPSLoser),
+        'roleRaffler': interaction.guild.get_role(CharityRaffle), 
+        'roleMember': interaction.guild.get_role(Member)
+    }
+
+    gameRules = {
+        'rock': {
+            'scissors': 'smashes',
+            'lizard': 'crushes'
+        },
+        'paper': {
+            'rock': 'covers',
+            'spock': 'disproves'
+        },
+        'scissors': {
+            'paper': 'cuts',
+            'lizard': 'decapitates'
+        },
+        'lizard': {
+            'paper': 'eats',
+            'spock': 'poisons'
+        },
+        'spock': {
+            'rock': 'vaporizes',
+            'scissors': 'smashes'
+        }
+    }
+
+    gameMessage = {
+        'win': 'You win!',
+        'lose': 'You lose :(',
+        'tie': "It's a tie!"
+    }
+
+    selectionEmoji = {
+        'rock': '✊',
+        'paper': '🖐️',
+        'scissors': '✌️',
+        'lizard': '🤌',
+        'spock': '🖖'
+    }
+
+    IHopeThisIsRNGEnough = random.SystemRandom()
+    botRPSDecision = botChoices[IHopeThisIsRNGEnough.randint(0, 4)]
+
+    if roles["roleLose"] in player.roles:
+        await interaction.response.send_message(f"Bruh you lost why you tryna cheat?", ephemeral=True)
+
+    elif roles["roleRaffler"] in player.roles:
+        await interaction.response.send_message(f"I'm sorry but you're not eligible to join this.", ephemeral=True)
+
+    elif roles["roleWin"] or roles["roleMember"] in player.roles:
+
+        if playerRPSDecision == botRPSDecision:
+            await interaction.response.send_message(f"Selection recorded", ephemeral=True, delete_after=3.0)
+            await logChannel.send(f"<@{interaction.user.id}> \n Played: {playerRPSDecision} \n Bot: {botRPSDecision} \n Result: Tie \n Timestamp: {datetime.datetime.now(timezone)} \n")
+            document = await generate_document(interaction.user.id, playerRPSDecision, botRPSDecision, result='Tie', timestamp=datetime.datetime.now(timezone))
+            await do_insert_rpsCollection(document, interaction.user.id, playerRPSDecision, botRPSDecision, playResult='Win', matchType='battleroyale', points=0)
+        elif botRPSDecision in gameRules[playerRPSDecision]:
+            await interaction.response.send_message(f"Selection recorded", ephemeral=True, delete_after=3.0)
+            await logChannel.send(f"<@{interaction.user.id}> \n Played: {playerRPSDecision} \n Bot: {botRPSDecision} \n Result: Win \n Timestamp: {datetime.datetime.now(timezone)} \n")
+            document = await generate_document(interaction.user.id, playerRPSDecision, botRPSDecision, result='Win', timestamp=datetime.datetime.now(timezone))
+            await do_insert_rpsCollection(document, interaction.user.id, playerRPSDecision, botRPSDecision, playResult='Win', matchType='battleroyale', points=0)
+            await player.remove_roles(roles['roleLose'])
+            await player.add_roles(roles['roleWin'])
+        else:
+            await interaction.response.send_message(f"Selection recorded", ephemeral=True, delete_after=3.0)
+            await logChannel.send(f"<@{interaction.user.id}> \n Played: {playerRPSDecision} \n Bot: {botRPSDecision} \n Result: Lose \n Timestamp: {datetime.datetime.now(timezone)} \n")
+            document = await generate_document(interaction.user.id, playerRPSDecision, botRPSDecision, result='Lose', timestamp=datetime.datetime.now(timezone))
+            await do_insert_rpsCollection(document, interaction.user.id, playerRPSDecision, botRPSDecision, playResult='Win', matchType='battleroyale', points=0)
+            await player.remove_roles(roles['roleWin'])
+            await player.add_roles(roles['roleLose'])
+
 @bot.event
 async def on_ready():
     bot.add_view(RPSLS_leaderboard())
@@ -97,243 +242,47 @@ class RPSLS_leaderboard(discord.ui.View):
     def __init__(self):
         super().__init__(timeout=None)
 
-    @discord.ui.select( 
-        placeholder = "Rock, Paper, Scissors, Lizards or Spock?!", 
-        min_values = 1, 
-        max_values = 1, 
-        custom_id = "RockPaperScissorGame_Leaderboard",
-        options = [
-            discord.SelectOption(
-                label="Rock",
-                emoji="✊",
-                value="rock",
-            ),
-            discord.SelectOption(
-                label="Paper",
-                emoji="🖐️",
-                value="paper",
-            ),
-            discord.SelectOption(
-                label="Scissors",
-                emoji="✌️",
-                value="scissors",
-            ),
-            discord.SelectOption(
-                label="Lizard",
-                emoji="🤌",
-                value="lizard",
-            ),
-            discord.SelectOption(
-                label="Spock",
-                emoji="🖖",
-                value="spock",
-            )
-        ]
-    )
-
-    async def select_callback(self, select, interaction):
-        if select.custom_id == "RockPaperScissorGame_Leaderboard":
-            await interaction.response.send_message(f"You're now playing Leaderboard Mode", ephemeral=True)
-
-        playerRPSDecision = select.values[0]
-        botChoices = ['rock', 'paper', 'scissors', 'lizard', 'spock']
-
-        channel = bot.get_channel(logChannel)
-
-        gameRules = {
-            'rock': {
-                'scissors': 'smashes',
-                'lizard': 'crushes'
-            },
-            'paper': {
-                'rock': 'covers',
-                'spock': 'disproves'
-            },
-            'scissors': {
-                'paper': 'cuts',
-                'lizard': 'decapitates'
-            },
-            'lizard': {
-                'paper': 'eats',
-                'spock': 'poisons'
-            },
-            'spock': {
-                'rock': 'vaporizes',
-                'scissors': 'smashes'
-            }
-        }
-
-        gameMessage = {
-            'win': 'You win!',
-            'lose': 'You lose :(',
-            'tie': "It's a tie!"
-        }
-
-        selectionEmoji = {
-            'rock': '✊',
-            'paper': '🖐️',
-            'scissors': '✌️',
-            'lizard': '🤌',
-            'spock': '🖖'
-        }
-
-        IHopeThisIsRNGEnough = random.SystemRandom()
-        botRPSDecision = botChoices[IHopeThisIsRNGEnough.randint(0, 4)]
-
-        if await continue_to_play(interaction.user.id) == False:
-            await interaction.followup.send(f"You've played the maximum of 10 times. No more :(", ephemeral=True)
-        else:
-            await interaction.followup.send(f"You: {selectionEmoji[playerRPSDecision]} {playerRPSDecision}!\nBot: {selectionEmoji[botRPSDecision]} {botRPSDecision}!", ephemeral=True)
-            if playerRPSDecision == botRPSDecision:
-                await interaction.followup.send(f"" + gameMessage['tie'] + "\n You won 1 point!", ephemeral=True)
-                await channel.send(f"<@{interaction.user.id}> \n Played: {playerRPSDecision} \n Bot: {botRPSDecision} \n Result: Tie \n Timestamp: {datetime.datetime.now(timezone)}")
-                document = await generate_document(interaction.user.id, playerRPSDecision, botRPSDecision, result='Tie', timestamp=datetime.datetime.now(timezone))
-                await do_insert_rpsCollection(document, interaction.user.id, playerRPSDecision, botRPSDecision, playResult='Tie', matchType='leaderboard', points=1)
-            elif botRPSDecision in gameRules[playerRPSDecision]:
-                action = gameRules[playerRPSDecision][botRPSDecision]
-                await interaction.followup.send(f"{playerRPSDecision.title()} {action} {botRPSDecision}! " + gameMessage['win'] + "\n You won 2 points!", ephemeral=True)
-                await channel.send(f"<@{interaction.user.id}> \n Played: {playerRPSDecision} \n Bot: {botRPSDecision} \n Result: Win \n Timestamp: {datetime.datetime.now(timezone)}")
-                document = await generate_document(interaction.user.id, playerRPSDecision, botRPSDecision, result='Win', timestamp=datetime.datetime.now(timezone))
-                await do_insert_rpsCollection(document, interaction.user.id, playerRPSDecision, botRPSDecision, playResult='Win', matchType='leaderboard', points=2)
-            else:
-                action = gameRules[botRPSDecision][playerRPSDecision]
-                await interaction.followup.send(f"{botRPSDecision.title()} {action} {playerRPSDecision}! " + gameMessage['lose'] + "\n You lost 1 point!", ephemeral=True)
-                await channel.send(f"<@{interaction.user.id}> \n Played: {playerRPSDecision} \n Bot: {botRPSDecision} \n Result: Lose \n Timestamp: {datetime.datetime.now(timezone)}")
-                document = await generate_document(interaction.user.id, playerRPSDecision, botRPSDecision, result='Lose', timestamp=datetime.datetime.now(timezone))
-                await do_insert_rpsCollection(document, interaction.user.id, playerRPSDecision, botRPSDecision, playResult='Lose', matchType='leaderboard', points=-1)
-        select.values = "Rock, Paper, Scissors, Lizards or Spock?!"
+    @discord.ui.button(label="Rock", row=0, custom_id='button_leaderboard_rock', style=discord.ButtonStyle.primary, emoji="✊")
+    async def first_button_callback(self, button, interaction):
+        await leaderboard_engine(interaction, playerRPSDecision='rock')
+    @discord.ui.button(label="Paper", row=1, custom_id='button_leaderboard_paper', style=discord.ButtonStyle.primary, emoji="🖐️")
+    async def second_button_callback(self, button, interaction):
+        await leaderboard_engine(interaction, playerRPSDecision='paper')
+    @discord.ui.button(label="Scissors", row=2, custom_id='button_leaderboard_scissors', style=discord.ButtonStyle.primary, emoji="✌️")
+    async def third_button_callback(self, button, interaction):
+        await leaderboard_engine(interaction, playerRPSDecision='scissors')
+    @discord.ui.button(label="Lizard", row=3, custom_id='button_leaderboard_lizards', style=discord.ButtonStyle.primary, emoji="🤌")
+    async def fourth_button_callback(self, button, interaction):
+        await leaderboard_engine(interaction, playerRPSDecision='lizard')
+    @discord.ui.button(label="Spock", row=4, custom_id='button_leaderboard_spock', style=discord.ButtonStyle.primary, emoji="🖖")
+    async def fifth_button_callback(self, button, interaction):
+        await leaderboard_engine(interaction, playerRPSDecision='spock')
 
 class RPSLS_battleroyale(discord.ui.View):
     def __init__(self):
         super().__init__(timeout=None)
 
-    @discord.ui.select( 
-        placeholder = "Rock, Paper, Scissors, Lizards or Spock?!", 
-        min_values = 1, 
-        max_values = 1, 
-        custom_id = "RockPaperScissorGame_BattleRoyale",
-        options = [
-            discord.SelectOption(
-                label="Rock",
-                emoji="✊",
-                value="rock",
-            ),
-            discord.SelectOption(
-                label="Paper",
-                emoji="🖐️",
-                value="paper",
-            ),
-            discord.SelectOption(
-                label="Scissors",
-                emoji="✌️",
-                value="scissors",
-            ),
-            discord.SelectOption(
-                label="Lizard",
-                emoji="🤌",
-                value="lizard",
-            ),
-            discord.SelectOption(
-                label="Spock",
-                emoji="🖖",
-                value="spock",
-            )
-        ]
-    )
-
-    async def select_callback(self, select, interaction):
-        if select.custom_id == "RockPaperScissorGame_BattleRoyale":
-            await interaction.response.send_message(f"You're now playing Battle Royale Mode", ephemeral=True)
-            
-        playerRPSDecision = select.values[0]
-        player = interaction.user
-        botChoices = ['rock', 'paper', 'scissors', 'lizard', 'spock']
-
-        channel = bot.get_channel(logChannel)
-
-        roles = {
-            'roleWin': interaction.guild.get_role(RPSWinner),
-            'roleLose': interaction.guild.get_role(RPSLoser),
-            'roleRaffler': interaction.guild.get_role(CharityRaffle), 
-            'roleMember': interaction.guild.get_role(Member)
-        }
-
-        gameRules = {
-            'rock': {
-                'scissors': 'smashes',
-                'lizard': 'crushes'
-            },
-            'paper': {
-                'rock': 'covers',
-                'spock': 'disproves'
-            },
-            'scissors': {
-                'paper': 'cuts',
-                'lizard': 'decapitates'
-            },
-            'lizard': {
-                'paper': 'eats',
-                'spock': 'poisons'
-            },
-            'spock': {
-                'rock': 'vaporizes',
-                'scissors': 'smashes'
-            }
-        }
-
-        gameMessage = {
-            'win': 'You win!',
-            'lose': 'You lose :(',
-            'tie': "It's a tie!"
-        }
-
-        selectionEmoji = {
-            'rock': '✊',
-            'paper': '🖐️',
-            'scissors': '✌️',
-            'lizard': '🤌',
-            'spock': '🖖'
-        }
-
-        IHopeThisIsRNGEnough = random.SystemRandom()
-        botRPSDecision = botChoices[IHopeThisIsRNGEnough.randint(0, 4)]
-
-        if roles["roleLose"] in player.roles:
-            await interaction.followup.send(f"Bruh you lost why you tryna cheat?", ephemeral=True)
-
-        elif roles["roleRaffler"] in player.roles:
-            await interaction.followup.send(f"I'm sorry but you're not eligible to join this.", ephemeral=True)
-
-        elif roles["roleWin"] or roles["roleMember"] in player.roles:
-            await interaction.followup.send(f"You: {selectionEmoji[playerRPSDecision]} {playerRPSDecision}!\nBot: {selectionEmoji[botRPSDecision]} {botRPSDecision}!", ephemeral=True)
-
-            if playerRPSDecision == botRPSDecision:
-                await interaction.followup.send(f"" + gameMessage['tie'], ephemeral=True)
-                await channel.send(f"<@{interaction.user.id}> \n Played: {playerRPSDecision} \n Bot: {botRPSDecision} \n Result: Tie \n Timestamp: {datetime.datetime.now(timezone)}")
-                document = await generate_document(interaction.user.id, playerRPSDecision, botRPSDecision, result='Tie', timestamp=datetime.datetime.now(timezone))
-                await do_insert_rpsCollection(document, interaction.user.id, playerRPSDecision, botRPSDecision, playResult='Win', matchType='battleroyale', points=0)
-            elif botRPSDecision in gameRules[playerRPSDecision]:
-                action = gameRules[playerRPSDecision][botRPSDecision]
-                await interaction.followup.send(f"{playerRPSDecision.title()} {action} {botRPSDecision}! " + gameMessage['win'], ephemeral=True)
-                await channel.send(f"<@{interaction.user.id}> \n Played: {playerRPSDecision} \n Bot: {botRPSDecision} \n Result: Win \n Timestamp: {datetime.datetime.now(timezone)}")
-                document = await generate_document(interaction.user.id, playerRPSDecision, botRPSDecision, result='Win', timestamp=datetime.datetime.now(timezone))
-                await do_insert_rpsCollection(document, interaction.user.id, playerRPSDecision, botRPSDecision, playResult='Win', matchType='battleroyale', points=0)
-                await player.remove_roles(roles['roleLose'])
-                await player.add_roles(roles['roleWin'])
-            else:
-                action = gameRules[botRPSDecision][playerRPSDecision]
-                await interaction.followup.send(f"{botRPSDecision.title()} {action} {playerRPSDecision}! " + gameMessage['lose'], ephemeral=True)
-                await channel.send(f"<@{interaction.user.id}> \n Played: {playerRPSDecision} \n Bot: {botRPSDecision} \n Result: Lose \n Timestamp: {datetime.datetime.now(timezone)}")
-                document = await generate_document(interaction.user.id, playerRPSDecision, botRPSDecision, result='Lose', timestamp=datetime.datetime.now(timezone))
-                await do_insert_rpsCollection(document, interaction.user.id, playerRPSDecision, botRPSDecision, playResult='Win', matchType='battleroyale', points=0)
-                await player.remove_roles(roles['roleWin'])
-                await player.add_roles(roles['roleLose'])
-        select.values = "Rock, Paper, Scissors, Lizards or Spock?!"
+    @discord.ui.button(label="Rock", row=0, custom_id='button_battleroyale_rock', style=discord.ButtonStyle.primary, emoji="✊")
+    async def first_button_callback(self, button, interaction):
+        await battleroyale_engine(interaction, playerRPSDecision='rock')
+    @discord.ui.button(label="Paper", row=1, custom_id='button_battleroyale_paper', style=discord.ButtonStyle.primary, emoji="🖐️")
+    async def second_button_callback(self, button, interaction):
+        await battleroyale_engine(interaction, playerRPSDecision='paper')
+    @discord.ui.button(label="Scissors", row=2, custom_id='button_battleroyale_scissors', style=discord.ButtonStyle.primary, emoji="✌️")
+    async def third_button_callback(self, button, interaction):
+        await battleroyale_engine(interaction, playerRPSDecision='scissors')
+    @discord.ui.button(label="Lizard", row=3, custom_id='button_battleroyale_lizard', style=discord.ButtonStyle.primary, emoji="🤌")
+    async def fourth_button_callback(self, button, interaction):
+        await battleroyale_engine(interaction, playerRPSDecision='lizard')
+    @discord.ui.button(label="Spock", row=4, custom_id='button_battleroyale_spock', style=discord.ButtonStyle.primary, emoji="🖖")
+    async def fifth_button_callback(self, button, interaction):
+        await battleroyale_engine(interaction, playerRPSDecision='spock')
 
 @bot.command(pass_context=True)
 @commands.has_permissions(administrator=True)
 async def rpsls_leaderboard(ctx):
     await ctx.send(f"Leaderboard Mode")
+
     await ctx.send(view=RPSLS_leaderboard())
 
 @bot.command(pass_context=True)
