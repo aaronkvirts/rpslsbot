@@ -16,7 +16,7 @@ client = motor.motor_asyncio.AsyncIOMotorClient(os.environ.get("MONGO_URL"), ser
 async def continue_to_play(userID):
     lastPlayedEntry = await client.rpsDatabase.rpsCollection.find_one({'Discord_ID': userID})
     if lastPlayedEntry is not None:
-        if lastPlayedEntry['Times_Played'] == 10:
+        if lastPlayedEntry['Times_Played'] == int(os.environ.get("maxPlays")):
             continueToPlay = False
             return continueToPlay
         else:
