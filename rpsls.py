@@ -201,7 +201,7 @@ class RPSLS_leaderboard(discord.ui.View):
                 await channel.send(f"<@{interaction.user.id}> \n Played: {playerRPSDecision} \n Bot: {botRPSDecision} \n Result: Lose \n Timestamp: {datetime.datetime.now(timezone)}")
                 document = await generate_document(interaction.user.id, playerRPSDecision, botRPSDecision, result='Lose', timestamp=datetime.datetime.now(timezone))
                 await do_insert_rpsCollection(document, interaction.user.id, playerRPSDecision, botRPSDecision, playResult='Lose', matchType='leaderboard', points=-1)
-        select.values = None
+        select.values = "Rock, Paper, Scissors, Lizards or Spock?!"
 
 class RPSLS_battleroyale(discord.ui.View):
     def __init__(self):
@@ -328,6 +328,7 @@ class RPSLS_battleroyale(discord.ui.View):
                 await do_insert_rpsCollection(document, interaction.user.id, playerRPSDecision, botRPSDecision, playResult='Win', matchType='battleroyale', points=0)
                 await player.remove_roles(roles['roleWin'])
                 await player.add_roles(roles['roleLose'])
+        select.values = "Rock, Paper, Scissors, Lizards or Spock?!"
 
 @bot.command(pass_context=True)
 @commands.has_permissions(administrator=True)
