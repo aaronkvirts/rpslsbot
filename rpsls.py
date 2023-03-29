@@ -201,6 +201,7 @@ class RPSLS_leaderboard(discord.ui.View):
                 await channel.send(f"<@{interaction.user.id}> \n Played: {playerRPSDecision} \n Bot: {botRPSDecision} \n Result: Lose \n Timestamp: {datetime.datetime.now(timezone)}")
                 document = await generate_document(interaction.user.id, playerRPSDecision, botRPSDecision, result='Lose', timestamp=datetime.datetime.now(timezone))
                 await do_insert_rpsCollection(document, interaction.user.id, playerRPSDecision, botRPSDecision, playResult='Lose', matchType='leaderboard', points=-1)
+        select.values = None
 
 class RPSLS_battleroyale(discord.ui.View):
     def __init__(self):
