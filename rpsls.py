@@ -255,19 +255,19 @@ class RPSLS_leaderboard(discord.ui.View):
     def __init__(self):
         super().__init__(timeout=None)
 
-    @discord.ui.button(label="Rock", row=0, style=discord.ButtonStyle.primary, emoji="✊")
+    @discord.ui.button(label="Rock", custom_id='button_leaderboard_rock', style=discord.ButtonStyle.primary, emoji="✊")
     async def first_button_callback(self, button, interaction):
         await leaderboard_engine(interaction, playerRPSDecision='rock')
-    @discord.ui.button(label="Paper", row=1, style=discord.ButtonStyle.primary, emoji="🖐️")
+    @discord.ui.button(label="Paper", custom_id='button_leaderboard_paper', style=discord.ButtonStyle.primary, emoji="🖐️")
     async def second_button_callback(self, button, interaction):
         await leaderboard_engine(interaction, playerRPSDecision='paper')
-    @discord.ui.button(label="Scissors", row=2, style=discord.ButtonStyle.primary, emoji="✌️")
+    @discord.ui.button(label="Scissors", custom_id='button_leaderboard_scissors', style=discord.ButtonStyle.primary, emoji="✌️")
     async def third_button_callback(self, button, interaction):
         await leaderboard_engine(interaction, playerRPSDecision='scissors')
-    @discord.ui.button(label="Lizards", row=3, style=discord.ButtonStyle.primary, emoji="🤌")
+    @discord.ui.button(label="Lizard", custom_id='button_leaderboard_lizards', style=discord.ButtonStyle.primary, emoji="🤌")
     async def fourth_button_callback(self, button, interaction):
         await leaderboard_engine(interaction, playerRPSDecision='lizard')
-    @discord.ui.button(label="Spock", row=4, style=discord.ButtonStyle.primary, emoji="🖖")
+    @discord.ui.button(label="Spock", custom_id='button_leaderboard_spock', style=discord.ButtonStyle.primary, emoji="🖖")
     async def fifth_button_callback(self, button, interaction):
         await leaderboard_engine(interaction, playerRPSDecision='spock')
 
@@ -275,19 +275,19 @@ class RPSLS_battleroyale(discord.ui.View):
     def __init__(self):
         super().__init__(timeout=None)
 
-    @discord.ui.button(label="Rock", row=0, style=discord.ButtonStyle.primary, emoji="✊")
+    @discord.ui.button(label="Rock", custom_id='button_battleroyale_rock', style=discord.ButtonStyle.primary, emoji="✊")
     async def first_button_callback(self, button, interaction):
         await battleroyale_engine(interaction, playerRPSDecision='rock')
-    @discord.ui.button(label="Paper", row=1, style=discord.ButtonStyle.primary, emoji="🖐️")
+    @discord.ui.button(label="Paper", custom_id='button_battleroyale_paper', style=discord.ButtonStyle.primary, emoji="🖐️")
     async def second_button_callback(self, button, interaction):
         await battleroyale_engine(interaction, playerRPSDecision='paper')
-    @discord.ui.button(label="Scissors", row=2, style=discord.ButtonStyle.primary, emoji="✌️")
+    @discord.ui.button(label="Scissors", custom_id='button_battleroyale_scissors', style=discord.ButtonStyle.primary, emoji="✌️")
     async def third_button_callback(self, button, interaction):
         await battleroyale_engine(interaction, playerRPSDecision='scissors')
-    @discord.ui.button(label="Lizards", row=3, style=discord.ButtonStyle.primary, emoji="🤌")
+    @discord.ui.button(label="Lizard", custom_id='button_battleroyale_lizard', style=discord.ButtonStyle.primary, emoji="🤌")
     async def fourth_button_callback(self, button, interaction):
         await battleroyale_engine(interaction, playerRPSDecision='lizard')
-    @discord.ui.button(label="Spock", row=4, style=discord.ButtonStyle.primary, emoji="🖖")
+    @discord.ui.button(label="Spock", custom_id='button_battleroyale_spock', style=discord.ButtonStyle.primary, emoji="🖖")
     async def fifth_button_callback(self, button, interaction):
         await battleroyale_engine(interaction, playerRPSDecision='spock')
 
