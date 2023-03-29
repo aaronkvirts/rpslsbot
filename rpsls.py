@@ -137,17 +137,17 @@ async def leaderboard_engine(interaction, playerRPSDecision):
         await interaction.response.send_message(f"You've played the maximum of 10 times. No more :(", ephemeral=True)
     else:
         if playerRPSDecision == botRPSDecision:
-            await interaction.response.send_message(f"Selection recorded", ephemeral=True, timeout=3.0)
+            await interaction.response.send_message(f"Selection recorded", ephemeral=True, delete_after=3.0)
             await logChannel.send(f"<@{interaction.user.id}> \n Played: {playerRPSDecision} \n Bot: {botRPSDecision} \n Result: Tie \n Timestamp: {datetime.datetime.now(timezone)} \n Points Won: 1 \n")
             document = await generate_document(interaction.user.id, playerRPSDecision, botRPSDecision, result='Tie', timestamp=datetime.datetime.now(timezone))
             await do_insert_rpsCollection(document, interaction.user.id, playerRPSDecision, botRPSDecision, playResult='Tie', matchType='leaderboard', points=1)
         elif botRPSDecision in gameRules[playerRPSDecision]:
-            await interaction.response.send_message(f"Selection recorded", ephemeral=True, timeout=3.0)
+            await interaction.response.send_message(f"Selection recorded", ephemeral=True, delete_after=3.0)
             await logChannel.send(f"<@{interaction.user.id}> \n Played: {playerRPSDecision} \n Bot: {botRPSDecision} \n Result: Win \n Timestamp: {datetime.datetime.now(timezone)} \n Points Won: 2 \n")
             document = await generate_document(interaction.user.id, playerRPSDecision, botRPSDecision, result='Win', timestamp=datetime.datetime.now(timezone))
             await do_insert_rpsCollection(document, interaction.user.id, playerRPSDecision, botRPSDecision, playResult='Win', matchType='leaderboard', points=2)
         else:
-            await interaction.response.send_message(f"Selection recorded", ephemeral=True, timeout=3.0)
+            await interaction.response.send_message(f"Selection recorded", ephemeral=True, delete_after=3.0)
             await logChannel.send(f"<@{interaction.user.id}> \n Played: {playerRPSDecision} \n Bot: {botRPSDecision} \n Result: Lose \n Timestamp: {datetime.datetime.now(timezone)} \n Points Lost: 1 \n")
             document = await generate_document(interaction.user.id, playerRPSDecision, botRPSDecision, result='Lose', timestamp=datetime.datetime.now(timezone))
             await do_insert_rpsCollection(document, interaction.user.id, playerRPSDecision, botRPSDecision, playResult='Lose', matchType='leaderboard', points=-1)
@@ -214,19 +214,19 @@ async def battleroyale_engine(interaction, playerRPSDecision):
     elif roles["roleWin"] or roles["roleMember"] in player.roles:
 
         if playerRPSDecision == botRPSDecision:
-            await interaction.response.send_message(f"Selection recorded", ephemeral=True, timeout=3.0)
+            await interaction.response.send_message(f"Selection recorded", ephemeral=True, delete_after=3.0)
             await logChannel.send(f"<@{interaction.user.id}> \n Played: {playerRPSDecision} \n Bot: {botRPSDecision} \n Result: Tie \n Timestamp: {datetime.datetime.now(timezone)} \n")
             document = await generate_document(interaction.user.id, playerRPSDecision, botRPSDecision, result='Tie', timestamp=datetime.datetime.now(timezone))
             await do_insert_rpsCollection(document, interaction.user.id, playerRPSDecision, botRPSDecision, playResult='Win', matchType='battleroyale', points=0)
         elif botRPSDecision in gameRules[playerRPSDecision]:
-            await interaction.response.send_message(f"Selection recorded", ephemeral=True, timeout=3.0)
+            await interaction.response.send_message(f"Selection recorded", ephemeral=True, delete_after=3.0)
             await logChannel.send(f"<@{interaction.user.id}> \n Played: {playerRPSDecision} \n Bot: {botRPSDecision} \n Result: Win \n Timestamp: {datetime.datetime.now(timezone)} \n")
             document = await generate_document(interaction.user.id, playerRPSDecision, botRPSDecision, result='Win', timestamp=datetime.datetime.now(timezone))
             await do_insert_rpsCollection(document, interaction.user.id, playerRPSDecision, botRPSDecision, playResult='Win', matchType='battleroyale', points=0)
             await player.remove_roles(roles['roleLose'])
             await player.add_roles(roles['roleWin'])
         else:
-            await interaction.response.send_message(f"Selection recorded", ephemeral=True, timeout=3.0)
+            await interaction.response.send_message(f"Selection recorded", ephemeral=True, delete_after=3.0)
             await logChannel.send(f"<@{interaction.user.id}> \n Played: {playerRPSDecision} \n Bot: {botRPSDecision} \n Result: Lose \n Timestamp: {datetime.datetime.now(timezone)} \n")
             document = await generate_document(interaction.user.id, playerRPSDecision, botRPSDecision, result='Lose', timestamp=datetime.datetime.now(timezone))
             await do_insert_rpsCollection(document, interaction.user.id, playerRPSDecision, botRPSDecision, playResult='Win', matchType='battleroyale', points=0)
@@ -282,6 +282,7 @@ class RPSLS_battleroyale(discord.ui.View):
 @commands.has_permissions(administrator=True)
 async def rpsls_leaderboard(ctx):
     await ctx.send(f"Leaderboard Mode")
+
     await ctx.send(view=RPSLS_leaderboard())
 
 @bot.command(pass_context=True)
