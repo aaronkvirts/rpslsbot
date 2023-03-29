@@ -137,16 +137,17 @@ async def leaderboard_engine(interaction, playerRPSDecision):
         await interaction.response.send_message(f"You've played the maximum of 10 times. No more :(", ephemeral=True)
     else:
         if playerRPSDecision == botRPSDecision:
+            await interaction.response.send_message(f"Selection recorded", ephemeral=True, timeout=3.0)
             await logChannel.send(f"<@{interaction.user.id}> \n Played: {playerRPSDecision} \n Bot: {botRPSDecision} \n Result: Tie \n Timestamp: {datetime.datetime.now(timezone)} \n Points Won: 1 \n")
             document = await generate_document(interaction.user.id, playerRPSDecision, botRPSDecision, result='Tie', timestamp=datetime.datetime.now(timezone))
             await do_insert_rpsCollection(document, interaction.user.id, playerRPSDecision, botRPSDecision, playResult='Tie', matchType='leaderboard', points=1)
         elif botRPSDecision in gameRules[playerRPSDecision]:
-            action = gameRules[playerRPSDecision][botRPSDecision]
+            await interaction.response.send_message(f"Selection recorded", ephemeral=True, timeout=3.0)
             await logChannel.send(f"<@{interaction.user.id}> \n Played: {playerRPSDecision} \n Bot: {botRPSDecision} \n Result: Win \n Timestamp: {datetime.datetime.now(timezone)} \n Points Won: 2 \n")
             document = await generate_document(interaction.user.id, playerRPSDecision, botRPSDecision, result='Win', timestamp=datetime.datetime.now(timezone))
             await do_insert_rpsCollection(document, interaction.user.id, playerRPSDecision, botRPSDecision, playResult='Win', matchType='leaderboard', points=2)
         else:
-            action = gameRules[botRPSDecision][playerRPSDecision]
+            await interaction.response.send_message(f"Selection recorded", ephemeral=True, timeout=3.0)
             await logChannel.send(f"<@{interaction.user.id}> \n Played: {playerRPSDecision} \n Bot: {botRPSDecision} \n Result: Lose \n Timestamp: {datetime.datetime.now(timezone)} \n Points Lost: 1 \n")
             document = await generate_document(interaction.user.id, playerRPSDecision, botRPSDecision, result='Lose', timestamp=datetime.datetime.now(timezone))
             await do_insert_rpsCollection(document, interaction.user.id, playerRPSDecision, botRPSDecision, playResult='Lose', matchType='leaderboard', points=-1)
@@ -213,18 +214,19 @@ async def battleroyale_engine(interaction, playerRPSDecision):
     elif roles["roleWin"] or roles["roleMember"] in player.roles:
 
         if playerRPSDecision == botRPSDecision:
+            await interaction.response.send_message(f"Selection recorded", ephemeral=True, timeout=3.0)
             await logChannel.send(f"<@{interaction.user.id}> \n Played: {playerRPSDecision} \n Bot: {botRPSDecision} \n Result: Tie \n Timestamp: {datetime.datetime.now(timezone)} \n")
             document = await generate_document(interaction.user.id, playerRPSDecision, botRPSDecision, result='Tie', timestamp=datetime.datetime.now(timezone))
             await do_insert_rpsCollection(document, interaction.user.id, playerRPSDecision, botRPSDecision, playResult='Win', matchType='battleroyale', points=0)
         elif botRPSDecision in gameRules[playerRPSDecision]:
-            action = gameRules[playerRPSDecision][botRPSDecision]
+            await interaction.response.send_message(f"Selection recorded", ephemeral=True, timeout=3.0)
             await logChannel.send(f"<@{interaction.user.id}> \n Played: {playerRPSDecision} \n Bot: {botRPSDecision} \n Result: Win \n Timestamp: {datetime.datetime.now(timezone)} \n")
             document = await generate_document(interaction.user.id, playerRPSDecision, botRPSDecision, result='Win', timestamp=datetime.datetime.now(timezone))
             await do_insert_rpsCollection(document, interaction.user.id, playerRPSDecision, botRPSDecision, playResult='Win', matchType='battleroyale', points=0)
             await player.remove_roles(roles['roleLose'])
             await player.add_roles(roles['roleWin'])
         else:
-            action = gameRules[botRPSDecision][playerRPSDecision]
+            await interaction.response.send_message(f"Selection recorded", ephemeral=True, timeout=3.0)
             await logChannel.send(f"<@{interaction.user.id}> \n Played: {playerRPSDecision} \n Bot: {botRPSDecision} \n Result: Lose \n Timestamp: {datetime.datetime.now(timezone)} \n")
             document = await generate_document(interaction.user.id, playerRPSDecision, botRPSDecision, result='Lose', timestamp=datetime.datetime.now(timezone))
             await do_insert_rpsCollection(document, interaction.user.id, playerRPSDecision, botRPSDecision, playResult='Win', matchType='battleroyale', points=0)
@@ -240,19 +242,19 @@ class RPSLS_leaderboard(discord.ui.View):
     def __init__(self):
         super().__init__(timeout=None)
 
-    @discord.ui.button(label="Rock", row=0, custom_id='button_leaderboard_rock', style=discord.ButtonStyle.primary, emoji="✊")
+    @discord.ui.button(label="Rock", custom_id='button_leaderboard_rock', style=discord.ButtonStyle.primary, emoji="✊")
     async def first_button_callback(self, button, interaction):
         await leaderboard_engine(interaction, playerRPSDecision='rock')
-    @discord.ui.button(label="Paper", row=1, custom_id='button_leaderboard_paper', style=discord.ButtonStyle.primary, emoji="🖐️")
+    @discord.ui.button(label="Paper", custom_id='button_leaderboard_paper', style=discord.ButtonStyle.primary, emoji="🖐️")
     async def second_button_callback(self, button, interaction):
         await leaderboard_engine(interaction, playerRPSDecision='paper')
-    @discord.ui.button(label="Scissors", row=2, custom_id='button_leaderboard_scissors', style=discord.ButtonStyle.primary, emoji="✌️")
+    @discord.ui.button(label="Scissors", custom_id='button_leaderboard_scissors', style=discord.ButtonStyle.primary, emoji="✌️")
     async def third_button_callback(self, button, interaction):
         await leaderboard_engine(interaction, playerRPSDecision='scissors')
-    @discord.ui.button(label="Lizard", row=3, custom_id='button_leaderboard_lizards', style=discord.ButtonStyle.primary, emoji="🤌")
+    @discord.ui.button(label="Lizard", custom_id='button_leaderboard_lizards', style=discord.ButtonStyle.primary, emoji="🤌")
     async def fourth_button_callback(self, button, interaction):
         await leaderboard_engine(interaction, playerRPSDecision='lizard')
-    @discord.ui.button(label="Spock", row=4, custom_id='button_leaderboard_spock', style=discord.ButtonStyle.primary, emoji="🖖")
+    @discord.ui.button(label="Spock", custom_id='button_leaderboard_spock', style=discord.ButtonStyle.primary, emoji="🖖")
     async def fifth_button_callback(self, button, interaction):
         await leaderboard_engine(interaction, playerRPSDecision='spock')
 
@@ -260,19 +262,19 @@ class RPSLS_battleroyale(discord.ui.View):
     def __init__(self):
         super().__init__(timeout=None)
 
-    @discord.ui.button(label="Rock", row=0, custom_id='button_battleroyale_rock', style=discord.ButtonStyle.primary, emoji="✊")
+    @discord.ui.button(label="Rock", custom_id='button_battleroyale_rock', style=discord.ButtonStyle.primary, emoji="✊")
     async def first_button_callback(self, button, interaction):
         await battleroyale_engine(interaction, playerRPSDecision='rock')
-    @discord.ui.button(label="Paper", row=1, custom_id='button_battleroyale_paper', style=discord.ButtonStyle.primary, emoji="🖐️")
+    @discord.ui.button(label="Paper", custom_id='button_battleroyale_paper', style=discord.ButtonStyle.primary, emoji="🖐️")
     async def second_button_callback(self, button, interaction):
         await battleroyale_engine(interaction, playerRPSDecision='paper')
-    @discord.ui.button(label="Scissors", row=2, custom_id='button_battleroyale_scissors', style=discord.ButtonStyle.primary, emoji="✌️")
+    @discord.ui.button(label="Scissors", custom_id='button_battleroyale_scissors', style=discord.ButtonStyle.primary, emoji="✌️")
     async def third_button_callback(self, button, interaction):
         await battleroyale_engine(interaction, playerRPSDecision='scissors')
-    @discord.ui.button(label="Lizard", row=3, custom_id='button_battleroyale_lizard', style=discord.ButtonStyle.primary, emoji="🤌")
+    @discord.ui.button(label="Lizard", custom_id='button_battleroyale_lizard', style=discord.ButtonStyle.primary, emoji="🤌")
     async def fourth_button_callback(self, button, interaction):
         await battleroyale_engine(interaction, playerRPSDecision='lizard')
-    @discord.ui.button(label="Spock", row=4, custom_id='button_battleroyale_spock', style=discord.ButtonStyle.primary, emoji="🖖")
+    @discord.ui.button(label="Spock", custom_id='button_battleroyale_spock', style=discord.ButtonStyle.primary, emoji="🖖")
     async def fifth_button_callback(self, button, interaction):
         await battleroyale_engine(interaction, playerRPSDecision='spock')
 
