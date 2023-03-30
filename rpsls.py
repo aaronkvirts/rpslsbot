@@ -33,10 +33,11 @@ async def do_insert_rpsCollection(document, userID, playerChoice, botChoice, pla
                 await client.rpsDatabase.rpsCollection.insert_one(document)
 
             lastPlayedEntry = await client.rpsDatabase.rpsCollection.find_one({'Discord_ID': userID})
+            finalPlayed = lastPlayedEntry['Times_Played'] + 1
+            
             if int(lastPlayedEntry['Times_Played']) == 0:
                 pointMultipler = 0.01
             else:
-                finalPlayed = lastPlayedEntry['Times_Played'] + 1
                 pointMultipler = (int(finalPlayed) / int(os.environ.get("maxPlays"))) * points 
             
             finalPoint = lastPlayedEntry['Total_Points'] + pointMultipler
