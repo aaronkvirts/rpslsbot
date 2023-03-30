@@ -33,8 +33,9 @@ async def do_insert_rpsCollection(document, userID, playerChoice, botChoice, pla
                 await client.rpsDatabase.rpsCollection.insert_one(document)
 
             lastPlayedEntry = await client.rpsDatabase.rpsCollection.find_one({'Discord_ID': userID})
-            finalPoint = lastPlayedEntry['Total_Points'] + points
             finalPlayed = lastPlayedEntry['Times_Played'] + 1
+            pointMultipler = (int(finalPlayed) / int(lastPlayedEntry['Times_Played'])) * points 
+            finalPoint = lastPlayedEntry['Total_Points'] + pointMultipler
             timestamp = datetime.datetime.now(timezone)
 
             await client.rpsDatabase.rpsCollection.update_one({'Discord_ID': userID}, { '$set': {
@@ -90,6 +91,7 @@ bot = commands.Bot(command_prefix='!!', intents=intents)
 
 async def leaderboard_engine(interaction, playerRPSDecision):
     logChannel = bot.get_channel(dc_logChannel)
+    maxPlays = int(os.environ.get("maxPlays"))
 
     botChoices = ['rock', 'paper', 'scissors', 'lizard', 'spock']
 
@@ -134,21 +136,21 @@ async def leaderboard_engine(interaction, playerRPSDecision):
     botRPSDecision = botChoices[IHopeThisIsRNGEnough.randint(0, 4)]
 
     if await continue_to_play(interaction.user.id) == False:
-        await interaction.response.send_message(f"You've played the maximum of 10 times. No more :(", ephemeral=True)
+        await interaction.response.send_message(f"You've played the maximum of {maxPlays} times. No more :(", ephemeral=True)
     else:
         if playerRPSDecision == botRPSDecision:
             await interaction.response.send_message(f"Selection recorded", ephemeral=True, delete_after=3.0)
-            await logChannel.send(f"<@{interaction.user.id}> \n Played: {playerRPSDecision} \n Bot: {botRPSDecision} \n Result: Tie \n Timestamp: {datetime.datetime.now(timezone)} \n Points Won: 1 \n")
+            await logChannel.send(f"<@{interaction.user.id}> \n Played: {playerRPSDecision} \n Bot: {botRPSDecision} \n Result: Tie \n Timestamp: {datetime.datetime.now(timezone)} \n\n")
             document = await generate_document(interaction.user.id, playerRPSDecision, botRPSDecision, result='Tie', timestamp=datetime.datetime.now(timezone))
             await do_insert_rpsCollection(document, interaction.user.id, playerRPSDecision, botRPSDecision, playResult='Tie', matchType='leaderboard', points=1)
         elif botRPSDecision in gameRules[playerRPSDecision]:
             await interaction.response.send_message(f"Selection recorded", ephemeral=True, delete_after=3.0)
-            await logChannel.send(f"<@{interaction.user.id}> \n Played: {playerRPSDecision} \n Bot: {botRPSDecision} \n Result: Win \n Timestamp: {datetime.datetime.now(timezone)} \n Points Won: 2 \n")
+            await logChannel.send(f"<@{interaction.user.id}> \n Played: {playerRPSDecision} \n Bot: {botRPSDecision} \n Result: Win \n Timestamp: {datetime.datetime.now(timezone)} \n\n")
             document = await generate_document(interaction.user.id, playerRPSDecision, botRPSDecision, result='Win', timestamp=datetime.datetime.now(timezone))
             await do_insert_rpsCollection(document, interaction.user.id, playerRPSDecision, botRPSDecision, playResult='Win', matchType='leaderboard', points=2)
         else:
             await interaction.response.send_message(f"Selection recorded", ephemeral=True, delete_after=3.0)
-            await logChannel.send(f"<@{interaction.user.id}> \n Played: {playerRPSDecision} \n Bot: {botRPSDecision} \n Result: Lose \n Timestamp: {datetime.datetime.now(timezone)} \n Points Lost: 1 \n")
+            await logChannel.send(f"<@{interaction.user.id}> \n Played: {playerRPSDecision} \n Bot: {botRPSDecision} \n Result: Lose \n Timestamp: {datetime.datetime.now(timezone)} \n\n")
             document = await generate_document(interaction.user.id, playerRPSDecision, botRPSDecision, result='Lose', timestamp=datetime.datetime.now(timezone))
             await do_insert_rpsCollection(document, interaction.user.id, playerRPSDecision, botRPSDecision, playResult='Lose', matchType='leaderboard', points=-1)
 
